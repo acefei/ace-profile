@@ -1,0 +1,200 @@
+" Deprecated, I use native vim8 package manager and use the script vim_pack
+" Vim-plug initialization {
+"    let vim_plug_just_installed = 0
+"    let vim_plug_path = expand('~/.vim/autoload/plug.vim')
+"    if !filereadable(vim_plug_path)
+"        echo "Installing Vim-plug..."
+"        echo ""
+"        silent !mkdir -p ~/.vim/autoload
+"        silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+"        let vim_plug_just_installed = 1
+"    endif
+"
+"    " manually load vim-plug the first time
+"    if vim_plug_just_installed
+"        :execute 'source '.fnameescape(vim_plug_path)
+"    endif
+"
+"    " Active plugins
+"    " Plugins from github repos
+"    call plug#begin('~/.vim/plugged')
+"        " Python mode (indentation, doc, refactor, lints, code checking, motion and
+"        " operators, highlighting, run and ipdb breakpoints)
+"        Plug 'python-mode/python-mode'
+"         
+"        " Autocompletion library
+"        "Plug 'maralla/completor.vim'
+"         
+"        " Lint check
+"        Plug 'w0rp/ale'
+"
+"        " Code and files fuzzy finder
+"        Plug 'ctrlpvim/ctrlp.vim'
+"
+"        " Better file browser
+"        Plug 'scrooloose/nerdtree'
+"
+"        " Code Comment functions so powerful
+"        Plug 'scrooloose/nerdcommenter'
+"
+"        " Class/module browser
+"        Plug 'majutsushi/tagbar'
+"
+"        "  Code snippet
+"        "Plug 'SirVer/ultisnips'
+"        " Snippets are separated from the engine. Add this if you want them:
+"        "Plug 'honza/vim-snippets'
+"        
+"        " Insert or delete brackets, parens, quotes in pair.
+"        Plug 'jiangmiao/auto-pairs'
+"        
+"    call plug#end()
+"
+"    " Install plugins the first time vim runs
+"    if vim_plug_just_installed
+"        echo "Installing Bundles, please ignore key map error messages"
+"        :PlugInstall
+"    endif
+" }
+
+
+" Vim Settings {
+    " UI { 
+        " allow plugins by file type (required for plugins!)
+        filetype plugin on
+        filetype indent on
+        
+        " groovy.vim support
+        "au BufNewFile,BufRead *.groovy setf groovy
+        "au BufNewFile,BufRead Jenkinsfile setf groovy
+
+        " syntax highlight on
+        syntax on
+
+        set nocompatible                " no vi-compatible
+        set linespace=0                 " No extra spaces between rows
+        set number                      " Line numbers on
+        set relativenumber              " use relative number
+        set showmatch                   " Show matching brackets/parenthesis
+        set incsearch                   " Find as you type search
+        set hlsearch                    " Highlight search terms
+        set winminheight=0              " Windows can be 0 line high
+        set ignorecase                  " Case insensitive search
+        set smartcase                   " Case sensitive when uc present
+        set wildmenu                    " Show list instead of just completing
+
+        " With a map leader it's possible to do extra key combinations
+        let mapleader = ","
+        let g:mapleader = ","
+    " }
+
+    " Formatting {
+
+        set nowrap                      " Do not wrap long lines
+        set autoindent                  " Indent at the same level of the previous line
+        set shiftwidth=4                " Use indents of 4 spaces
+        set expandtab                   " Tabs are spaces, not tabs
+        set tabstop=4                   " An indentation every four columns
+        set softtabstop=4               " Let backspace delete indent
+        set nojoinspaces                " Prevents inserting two spaces after punctuation on a join (J)
+        set splitright                  " Puts new vsplit windows to the right of the current
+        set splitbelow                  " Puts new split windows to the bottom of the current
+        "set matchpairs+=<:>             " Match, to be used with %
+        set pastetoggle=<F12>           " pastetoggle (sane indentation on pastes)
+    " }
+    
+    " Tab {
+        " Useful mappings for managing tabs
+        map <leader>tn :tabnew<cr>
+        map <leader>to :tabonly<cr>
+        map <leader>tc :tabclose<cr>
+        map <leader>tm :tabmove
+
+        " Opens a new tab with the current buffer's path
+        " Super useful when editing files in the same directory
+        map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
+    " }
+
+    " Key Mappings {
+        " Wrapped lines goes down/up to next row, rather than next line in file.
+        noremap j gj
+        noremap k gk
+    " }
+    " Misc {
+        " reformat the whole python file with gg=G
+        autocmd FileType python setlocal equalprg=yapf
+
+        " Return to last edit position when opening files (You want this!)
+        autocmd BufReadPost *
+             \ if line("'\"") > 0 && line("'\"") <= line("$") |
+             \   exe "normal! g`\"" |
+             \ endif
+        " Remember info about open buffers on close
+        set viminfo^=%
+    " }
+" }
+
+" Plugin Settings {
+    " Ale {
+        let g:ale_linters = {'python': ['flake8']}
+    " }
+    
+    " Completor {
+      " pip install jedi first
+      let g:completor_python_binary = '/usr/local/bin/python3'
+    " }
+
+    " Nerdcommenter {
+        map <C-c> <plug>NERDCommenterToggle  
+    " }
+    
+    " NerdTree {
+       " toggle nerdtree display
+       map <F3> :NERDTreeToggle<CR>
+       " open nerdtree with the current file selected
+       nmap ,t :NERDTreeFind<CR>
+       " don;t show these file types
+       let NERDTreeIgnore = ['\.pyc$', '\.pyo$']
+    " }
+
+    " Ctrlp {
+        " tags (symbols) in current file finder mapping
+        nmap ,g :CtrlPBufTag<CR>
+        " tags (symbols) in all files finder mapping
+        nmap ,G :CtrlPBufTagAll<CR>
+        " general code finder in all files mapping
+        nmap ,f :CtrlPLine<CR>
+        " recent files finder mapping
+        nmap ,m :CtrlPMRUFiles<CR>
+        " commands finder mapping
+        nmap ,c :CtrlPCmdPalette<CR>
+        " to be able to call CtrlP with default search text
+        function! CtrlPWithSearchText(search_text, ctrlp_command_end)
+            execute ':CtrlP' . a:ctrlp_command_end
+            call feedkeys(a:search_text)
+        endfunction
+        " same as previous mappings, but calling with current word as default text
+        nmap ,wg :call CtrlPWithSearchText(expand('<cword>'), 'BufTag')<CR>
+        nmap ,wG :call CtrlPWithSearchText(expand('<cword>'), 'BufTagAll')<CR>
+        nmap ,wf :call CtrlPWithSearchText(expand('<cword>'), 'Line')<CR>
+        nmap ,we :call CtrlPWithSearchText(expand('<cword>'), '')<CR>
+        nmap ,pe :call CtrlPWithSearchText(expand('<cfile>'), '')<CR>
+        nmap ,wm :call CtrlPWithSearchText(expand('<cword>'), 'MRUFiles')<CR>
+        nmap ,wc :call CtrlPWithSearchText(expand('<cword>'), 'CmdPalette')<CR>
+        " don't change working directory
+        let g:ctrlp_working_path_mode = 0
+        " ignore these files and folders on file finder
+        let g:ctrlp_custom_ignore = {
+          \ 'dir':  '\v[\/](\.git|\.hg|\.svn|node_modules)$',
+          \ 'file': '\.pyc$\|\.pyo$',
+          \ } 
+    " }
+    
+    " Tagbar {
+         " toggle tagbar display
+         map <F4> :TagbarToggle<CR>
+         " autofocus on tagbar open
+         let g:tagbar_autofocus = 1
+    " }
+    
+" }

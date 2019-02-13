@@ -1,0 +1,7 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+# query and select the lowest ttl ip on http://tool.chinaz.com/dns
+151.101.72.249  github.global.ssl.fastly.net
+151.101.128.133  assets-cdn.github.com
+8.7.198.45 gist.github.com

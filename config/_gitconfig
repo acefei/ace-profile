@@ -1,0 +1,25 @@
+[merge]
+    tool = meld
+
+[diff]
+    tool = meld
+
+[user]
+	name = Fei Su
+	email = fei.su@citrix.com
+
+[credential]
+    helper = store
+
+[push]
+    default = simple
+
+[alias]
+    up = !sh -c 'git pull --rebase && git push'
+    lp = log --graph --pretty=format:'%C(yellow)%d%Creset %C(cyan)%h%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=short --all
+    co = checkout
+    br = branch
+    brv = branch -vv
+    st = status
+    rv = remote -vv
+    caa = commit -a --amend

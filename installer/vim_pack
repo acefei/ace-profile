@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+
+# edit the following for what plugins you want to install.
+# PLUGS is an associative array of which subscript indicates package group and value indicates plugin names.
+declare -A PLUGS
+
+#PLUGS['python']="\
+#                google/yapf\
+#                "
+
+#PLUGS['groovy']="\
+#                modille/groovy.vim \
+#                "
+
+PLUGS['generic']="\
+                  w0rp/ale \
+                  ctrlpvim/ctrlp.vim \
+                  majutsushi/tagbar \
+                  scrooloose/nerdtree \
+                  scrooloose/nerdcommenter \
+                  SirVer/ultisnips \
+                  honza/vim-snippets\
+                  jiangmiao/auto-pairs \
+                  maralla/completor.vim \
+                  mhinz/vim-signify \
+                  kshenoy/vim-signature \
+                  "
+
+# Create new folder in ~/.vim/pack that contains a start folder and cd into it.
+#
+# Arguments:
+#   package_group, a string folder name to create and change into.
+#
+# Examples:
+#   set_group syntax-highlighting
+#
+set_group() {
+  package_group=$1
+  path="$HOME/.vim/pack/$package_group/start"
+  mkdir -p "$path"
+  cd "$path" || exit
+}
+
+# Clone or update a git repo in the current directory.
+#
+# Arguments:
+#   repo_url, a URL to the git repo.
+#
+# Examples:
+#   package https://github.com/tpope/vim-endwise.git
+#
+package() {
+  repo_url=$1
+  expected_repo=$(basename "$repo_url" .git)
+  if [ -d "$expected_repo" ]; then
+    cd "$expected_repo" || exit
+    result=$(git pull --force)
+    echo "$expected_repo: $result"
+  else
+    echo "$expected_repo: Installing..."
+    git clone -q "$repo_url" --depth 1
+    echo "$expected_repo: Done..."
+  fi
+}
+
+install_all() {
+    for key in ${!PLUGS[*]} 
+    do
+        {
+			set_group $key
+            for plug in ${PLUGS[$key]}
+            do
+                package https://github.com/${plug}.git &
+            done
+			wait
+        } &
+    done
+
+    wait
+}
+
+tear_down() {
+    # remove the plugins unused
+    cd $HOME/.vim/pack
+    old_plugs=$(find ./*/*/*/.git -prune -mmin +5 -print | sed "s/\/.git//")
+    if [ -n "$old_plugs" ]; then
+        echo
+        echo "Removing old plugins:"
+        echo $old_plugs | xargs rm -rf
+    fi
+
+    # copy _vimrc to ~/.vimrc
+    source $HOME/.ace_profile_env
+    INSTALLATION_PATH=$PROFILE_PATH/installer
+    source $INSTALLATION_PATH/precondition.sh
+    ln -sf $vimrcs/_vimrc $vimrc
+}
+
+install_all
+tear_down

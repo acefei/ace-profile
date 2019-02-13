@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+# encoding: utf-8
+"""
+@author: acefei
+@file: ${NAME}.py
+@time: ${YEAR}-${MONTH}-${DAY}
+"""
+
+
+class ${NAME}(object):
+    def __init__(self):
+        pass
+
+if __name__ == "__main__":
+    pass
