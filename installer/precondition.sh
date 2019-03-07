@@ -50,6 +50,16 @@ get_from_github () {
     fi
 }
 
+curl_install() {
+    if [ $# == 1 ];then
+        curl $1 -fsSL | bash
+    elif (( $# > 1 ));then
+        local url=$1
+        shift
+        curl $url -fsSL | bash -s -- $*
+    fi
+}
+
 download() {
     local location=$1
     local url=$2

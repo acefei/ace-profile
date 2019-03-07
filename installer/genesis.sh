@@ -63,6 +63,17 @@ setup_fpp()
     echo ">>>>>  Setup fpp successfully..."
 }
 
+setup_rg()
+{
+    curl_install https://sh.rustup.rs -y
+    echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> $profile
+    $git_clone https://github.com/BurntSushi/ripgrep.git ~/.ripgrep
+    cd ~/.ripgrep
+    $HOME/.cargo/bin/cargo build --release
+    cp ./target/release/rg /usr/local/bin/
+    echo ">>>>>  Setup rg successfully..."
+}
+
 setup_vimrc()
 {
     [ -e $vimrc -o -h $vimrc ] && mv ${vimrc}{,.backup}
@@ -75,7 +86,7 @@ setup_vimrc()
 
 setup_pyenv()
 {
-    curl https://pyenv.run | bash
+    curl_install https://pyenv.run
     tee -a $profile <<-'EOF'
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
