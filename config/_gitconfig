@@ -18,9 +18,25 @@
     up = !sh -c 'git pull --rebase && git push'
     lp = log --graph --pretty=format:'%C(yellow)%d%Creset %C(cyan)%h%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=short --all
     co = checkout
+    cob = checkout -b
     br = branch
     brv = branch -vv
     st = status
     rv = remote -vv
     caa = commit -a --amend
-    swbr = checkout -
+    diffc = diff --cached
+    rebase-to-master = !git fetch origin && git rebase origin/master
+
+
+# Get the current branch name
+branch-name = "!git rev-parse --abbrev-ref HEAD"
+
+# Push the current branch to the remote "origin", and set it to track
+# the upstream branch
+publish = "!git push -u origin $(git branch-name)"
+
+# Delete the remote version of the current branch
+unpublish = "!git push origin :$(git branch-name)"
+
+# Interactively rebase all the commits on the current branch
+rebase-branch = "!git rebase -i `git merge-base master HEAD`"
