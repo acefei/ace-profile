@@ -70,6 +70,7 @@
 
         " syntax highlight on
         syntax on
+        colorscheme desert
 
         set nocompatible                " no vi-compatible
         set linespace=0                 " No extra spaces between rows

@@ -63,16 +63,6 @@ setup_fpp()
     echo ">>>>>  Setup fpp successfully..."
 }
 
-setup_rg()
-{
-    curl_install https://sh.rustup.rs -y
-    echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> $profile
-    $git_clone https://github.com/BurntSushi/ripgrep.git ~/.ripgrep
-    cd ~/.ripgrep
-    $HOME/.cargo/bin/cargo build --release
-    cp ./target/release/rg /usr/local/bin/
-    echo ">>>>>  Setup rg successfully..."
-}
 
 setup_vimrc()
 {

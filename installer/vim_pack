@@ -63,7 +63,7 @@ package() {
   fi
 }
 
-install_all() {
+install_plugins() {
     for key in ${!PLUGS[*]} 
     do
         {
@@ -94,7 +94,8 @@ tear_down() {
     INSTALLATION_PATH=$PROFILE_PATH/installer
     source $INSTALLATION_PATH/precondition.sh
     ln -sf $vimrcs/_vimrc $vimrc
+
 }
 
-install_all
+install_plugins
 tear_down
