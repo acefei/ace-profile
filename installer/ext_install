@@ -73,6 +73,7 @@ make_vim8() {
     if ! grep "alias vi=$local_bin/vim" $profile > /dev/null 2>&1; then 
         echo "alias vi=$local_bin/vim" >> $profile
     fi
+    git config core.editor "$local_bin/vim"
     echo "===> vim is installed successfully."
 }
 
