@@ -9,7 +9,10 @@ curl -sL https://raw.githubusercontent.com/acefei/ace-profile/master/installer/i
 
 
 ## Feature
-- [fzf is a general-purpose command-line fuzzy finder](https://github.com/junegunn/fzf)      
+- [fzf is a general-purpose command-line fuzzy finder](https://github.com/junegunn/fzf)  
+  - add the alias `vigo` is used to open selected file from workspace
+  - add the alias `cdgo` is used to cd into selected directory from workspace
+  - the workspace is $HOME by default, you might update it in ~/.bashrc
 ```
     CTRL-T - Paste the selected files and directories onto the command line
         Set FZF_CTRL_T_COMMAND to override the default command
@@ -22,9 +25,7 @@ curl -sL https://raw.githubusercontent.com/acefei/ace-profile/master/installer/i
         Set FZF_ALT_C_COMMAND to override the default command
         Set FZF_ALT_C_OPTS to pass additional options
 ```
-  - add the alias `vigo` is used to open selected file from workspace
-  - add the alias `cdgo` is used to cd into selected directory from workspace
-  - the workspace is $HOME by default, you might update it in ~/.bashrc
+    
 - [Facebook PathPicker](https://github.com/facebook/PathPicker) is a simple command line tool that solves the perpetual problem of selecting files out of bash output.
 - [Pyenv](https://github.com/pyenv/pyenv) is Simple Python version management
   - [ext_install](https://github.com/acefei/ace-profile/blob/master/installer/ext_install) will install python 3.7.2 by default, so you want to set back to system default version, please run `pyenv local system`
