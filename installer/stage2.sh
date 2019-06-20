@@ -79,7 +79,7 @@ make_vim8() {
 
 docker_utils() {
     # refer to https://get.daocloud.io
-    if which docker > /dev/null 2>&1; then
+    if [ -x "$(command -v docker)" ]; then
         echo "===> docker is already installed "
     else
         curl -sSL https://get.daocloud.io/docker | $gosu sh

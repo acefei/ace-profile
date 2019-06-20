@@ -65,9 +65,9 @@ download() {
     local url=$2
 
     set -e
-    if which curl > /dev/null 2>&1; then
+    if [ -x "$(command -v curl)" ];then
         curl -sL -o $location $url
-    elif which wget > /dev/null 2>&1; then
+    elif [ -x "$(command -v wget)" ]; then
         wget -q -O $location $url
     else
         echo "please install curl/wget firstly."
@@ -85,9 +85,9 @@ distro_identify() {
 
 pmu_identify() {
     # find out the Package Management Utility
-    if [ -e /usr/bin/yum ]; then
+    if [ -x "$(command -v yum)" ]; then
         distro='yum'
-    elif [ -e /usr/bin/apt ]; then
+    elif [ -x "$(command -v apt)" ]; then
         distro='apt'
     else
         echo "Package manager is not support this OS. Only support to use yum/apt."
@@ -99,9 +99,9 @@ install_pack() {
     local pack_name="$*"
     echo "===> Start to install $pack_name"
     set -e
-    if [ -e /usr/bin/yum ]; then
+    if [ -x "$(command -v yum)" ]; then
         $gosu yum install -y $pack_name
-    elif [ -e /usr/bin/apt ]; then
+    elif [ -x "$(command -v apt)" ]; then
         $gosu apt install -y $pack_name
     else
         echo "Package manager is not support this OS. Only support to use yum/apt."
@@ -114,9 +114,10 @@ remove_pack() {
     local pack_name="$*"
     echo "===> Start to remove $pack_name"
     set -e
-    if [ -e /usr/bin/yum ]; then
+    if [ -x "$(command -v yum)" ]; then
+        $gosu yum install -y $pack_name
         $gosu yum remove -y $pack_name
-    elif [ -e /usr/bin/apt ]; then
+    elif [ -x "$(command -v apt)" ]; then
         echo "$gosu apt remove -y $pack_name"
         $gosu apt autoremove -y $pack_name
     else

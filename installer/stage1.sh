@@ -5,8 +5,13 @@ source $HOME/.ace_profile_env
 INSTALLATION_PATH=$PROFILE_PATH/installer
 source $INSTALLATION_PATH/precondition.sh
 
-setup_git()
-{
+trap teardown EXIT
+teardown() {
+    echo
+    echo "Installation complete! To run 'bash' for the updated profile to take effect."
+}
+
+setup_git() {
     # refer to https://apple.stackexchange.com/a/328144
     git_ver=$(git --version | awk '{print $3}')
     download $HOME/.git-completion.bash https://raw.github.com/git/git/v$git_ver/contrib/completion/git-completion.bash 
@@ -19,15 +24,13 @@ setup_git()
     echo ">>>>>  Add git config successfully..."
 }
 
-setup_bash_profile()
-{
+setup_bash_profile() {
     echo > $profile
     for f in $bash_profile/_*
     do
         echo "source $f in $profile"
         echo "source $f" >> $profile
     done
-
 
     tee -a $profile <<-'EOF'
 export PATH=$PATH:~/.local/bin
@@ -45,37 +48,39 @@ config_ssh() {
     [ -d $HOME/.ssh ] || mkdir $HOME/.ssh
     ln -sf $config/ssh_config $sshconfig
 
-    echo ">>>>>  add config in $HOME/.ssh successfully..."
+    echo ">>>>>  Add config in $HOME/.ssh successfully..."
 }
 
-setup_fzf()
-{
+setup_fzf() {
     $git_clone https://github.com/junegunn/fzf.git ~/.fzf
     yes | ~/.fzf/install
 
+    tee -a $profile <<-'EOF'
+export FZF_FIND_PATH=$HOME
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+alias vigo='cd $(find $FZF_FIND_PATH -type d | fzf)'
+alias cdgo='cd $(find $FZF_FIND_PATH -type f | fzf)'
+EOF
     echo ">>>>>  Setup fzf successfully..."
 }
 
-setup_fpp()
-{
+setup_fpp() {
     $git_clone https://github.com/facebook/PathPicker.git  ~/.PathPicker
     ln -sf ~/.PathPicker/fpp $local_bin/fpp
+
     echo ">>>>>  Setup fpp successfully..."
 }
 
-
-setup_vimrc()
-{
-    [ -e $vimrc -o -h $vimrc ] && mv ${vimrc}{,.backup}
-    [ -e $ideavimrc -o -h $ideavimrc ] && mv ${ideavimrc}{,.backup}
-    ln -s $vimrcs/_vimrc_without_plug $vimrc
-    ln -s $vimrcs/_ideavimrc $ideavimrc
+setup_vimrc() {
+    [ -e $vimrc ] && mv ${vimrc}{,.backup}
+    [ -e $ideavimrc ] && mv ${ideavimrc}{,.backup}
+    ln -sf $vimrcs/_vimrc_without_plug $vimrc
+    ln -sf $vimrcs/_ideavimrc $ideavimrc
 
     echo ">>>>>  Add vimrc successfully..."
 }
 
-setup_pyenv()
-{
+setup_pyenv() {
     curl_install https://pyenv.run
     tee -a $profile <<-'EOF'
 export PATH="$HOME/.pyenv/bin:$PATH"
@@ -84,8 +89,7 @@ eval "$(pyenv virtualenv-init -)"
 EOF
 }
 
-main()
-{
+main() {
     set -e
     setup_git
     setup_bash_profile
@@ -98,4 +102,6 @@ main()
 
 ##################### MAIN ##########################
 main
-echo "Well done, just run 'bash' for the updated profile to take effect."
+echo ">>> Will enter stage two in 5 sec, you might COMPLETE installation right now by CTRL+C"
+sleep 5
+$INSTALLATION_PATH/stage2.sh
