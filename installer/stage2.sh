@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 setup=$(mktemp -dt "$(basename "$0").XXXXXXXXXX")
 teardown(){
     rm -rf "$setup"
@@ -10,7 +8,6 @@ trap teardown EXIT
 
 current_dir=$(cd `dirname ${BASH_SOURCE[0]}`; pwd)
 source $current_dir/precondition.sh
-prefix=$(dirname $local_bin)
 
 essential() {
     install['yum']="epel-release gcc automake autoconf libtool make tig"
@@ -21,11 +18,8 @@ essential() {
 
 for_wsl() {
     # docker run -it -v /c/Users/acefei/:/data xxx
-    if [ -d /mnt/c ]; then
-        $gosu mkdir /c && $gosu mount --bind /mnt/c /c
-    else
-        return
-    fi
+    test -d /mnt/c || return
+    $gosu mkdir /c && $gosu mount --bind /mnt/c /c
 
     tee -a $bashrc <<TEE
 # Configure WSL to Connect to the remote docker daemon running in Docker for Windows
@@ -34,14 +28,19 @@ TEE
 }
 
 make_python3() {
-    # install dependency
-    install['yum']="ncurses-devel zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel xz xz-devel libffi-devel"
-    install['apt']="make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl"
-    install_pack ${install["$distro"]}
+    remove_pack python3
     ver=3.7.2
-    pyenv install $ver
-    pyenv local $ver
-    pyenv versions
+    PY3_PREFIX=`pyenv prefix $ver`
+    if [ ! -d "$PY3_PREFIX" ];then
+        # install dependency
+        install['yum']="ncurses-devel zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel xz xz-devel libffi-devel"
+        install['apt']="make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl"
+        install_pack ${install["$distro"]}
+        pyenv install $ver
+        pyenv local $ver
+        pyenv versions
+    fi 
+    export PY3_CONFIG=`$PY3_PREFIX/bin/python-config --configdir`
     echo "===> python $ver is installed successfully."
 }
 
@@ -59,47 +58,42 @@ make_vim8() {
     get_from_github vim
     cd vim
     #  run `make distclean' and/or `rm config.cache' and start over
-    make distclean
-    ./configure --prefix=$prefix \
-                --enable-fail-if-missing \
-                --enable-multibyte  \
-                --with-features=huge \
-                --enable-rubyinterp \
-                --enable-perlinterp \
-                --enable-luainterp \
-                --enable-python3interp  
-    make -j$CPU
-    make install 
+    make distclean \
+    && ./configure --enable-multibyte     \
+                --with-features=huge      \
+                --enable-rubyinterp       \
+                --enable-perlinterp       \
+                --enable-luainterp        \
+                --enable-python3interp    \
+                --with-python3-config-dir=$PY3_CONFIG  \
+                --enable-fail-if-missing  \
+                --prefix=$local_dir       \
+    && make -j$CPU \
+    && make install DESTDIR=$local_dir
+
     if ! grep "alias vi=$local_bin/vim" $profile > /dev/null 2>&1; then 
         echo "alias vi=$local_bin/vim" >> $profile
     fi
     git config core.editor "$local_bin/vim"
-    echo "===> vim is installed successfully."
+    echo "===> $local_bin/vim is installed successfully."
 }
 
 docker_utils() {
     # refer to https://get.daocloud.io
-    if [ -x "$(command -v docker)" ]; then
-        echo "===> docker is already installed "
-    else
+    if [ ! -x "$(command -v docker)" ]; then
         curl -sSL https://get.daocloud.io/docker | $gosu sh
-        echo "===> docker is installed successfully."
         $gosu usermod -aG docker $USER
 
         # configure docker service
         docker_service_file=/usr/lib/systemd/system/docker.service
         if [ -e $docker_service_file ];then
             $gosu sed -i 's!^\(ExecStart=\).*!\1/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock!' $docker_service_file
-            echo "===> update dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock"
         fi
     fi
 
-    if [ -e $local_bin/docker-compose ]; then
-        echo "===> docker-compose is already installed "
-    else
-        sh -c "curl -L https://get.daocloud.io/docker/compose/releases/download/1.20.1/docker-compose-`uname -s`-`uname -m` > $local_bin/docker-compose"
+    if [ ! -e $local_bin/docker-compose ]; then
+        curl -sL https://get.daocloud.io/docker/compose/releases/download/1.20.1/docker-compose-`uname -s`-`uname -m` > $local_bin/docker-compose
         chmod +x $local_bin/docker-compose
-        echo "===> docker-compose is installed successfully."
     fi
 }
 
@@ -152,10 +146,10 @@ make_tmux(){
 main() {
     # select what you want to install
     essential
+    for_wsl
     make_vim8
     make_tmux
     docker_utils
-    for_wsl
 }
 
 main

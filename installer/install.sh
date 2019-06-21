@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-if ! command -v git; then
+if [ ! -x $(command -v git); then
     echo "please install git first."
     exit 1
 fi
