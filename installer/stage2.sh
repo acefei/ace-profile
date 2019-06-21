@@ -32,6 +32,7 @@ TEE
 make_python3() {
     remove_pack python3
 
+    export PATH="$HOME/.pyenv/bin:$PATH"
     ver=3.7.2
     PY3_PREFIX=$HOME/.pyenv/versions/$ver
     if [ ! -d "$PY3_PREFIX" ];then
@@ -40,10 +41,10 @@ make_python3() {
         install['apt']="make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl"
         install_pack ${install["$distro"]}
         pyenv install $ver
-        pyenv local $ver
-        pyenv versions
         PY3_PREFIX=`pyenv prefix $ver`
     fi 
+    pyenv global $ver
+    eval "$(pyenv init -)"
     export PY3_CONFIG=`$PY3_PREFIX/bin/python-config --configdir`
     echo "===> python $ver is installed successfully."
 }
