@@ -34,8 +34,12 @@ setup_bash_profile() {
 
     tee -a $profile <<-'EOF'
 export PATH=$PATH:~/.local/bin
-eval "$(ssh-agent)"
-ssh-add
+
+# when you are in an interactive shell 
+if [[ $- == *i* ]];then
+    eval "$(ssh-agent)"
+    ssh-add
+fi
 EOF
 
     [ -e $bashrc ] && mv ${bashrc}{,.backup}
@@ -55,12 +59,14 @@ setup_fzf() {
     $git_clone https://github.com/junegunn/fzf.git ~/.fzf
     yes | ~/.fzf/install
 
-    tee -a $profile <<-'EOF'
+    fzfrc=~/.fzfrc
+    tee $fzfrc <<-'EOF'
 export FZF_FIND_PATH=$HOME
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 alias vigo='cd $(find $FZF_FIND_PATH -type d | fzf)'
 alias cdgo='cd $(find $FZF_FIND_PATH -type f | fzf)'
 EOF
+    echo "source $fzfrc" >> $profile
     echo ">>>>>  Setup fzf successfully..."
 }
 
@@ -82,11 +88,13 @@ setup_vimrc() {
 
 setup_pyenv() {
     curl_install https://pyenv.run
-    tee -a $profile <<-'EOF'
+    pyenvrc=~/.pyenvrc
+    tee $pyenvrc <<-'EOF'
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 EOF
+    echo "source $pyenvrc" >> $profile
 }
 
 main() {
@@ -104,4 +112,4 @@ main() {
 main
 echo ">>> Will enter stage two in 5 sec, you might COMPLETE installation right now by CTRL+C"
 sleep 5
-$INSTALLATION_PATH/stage2.sh
+exec $INSTALLATION_PATH/stage2.sh

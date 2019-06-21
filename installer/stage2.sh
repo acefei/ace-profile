@@ -2,9 +2,11 @@
 
 setup=$(mktemp -dt "$(basename "$0").XXXXXXXXXX")
 teardown(){
+    exit_code=$?
     rm -rf "$setup"
+    exit $exit_code
 }
-trap teardown EXIT
+trap teardown EXIT 
 
 current_dir=$(cd `dirname ${BASH_SOURCE[0]}`; pwd)
 source $current_dir/precondition.sh
@@ -18,7 +20,7 @@ essential() {
 
 for_wsl() {
     # docker run -it -v /c/Users/acefei/:/data xxx
-    test -d /mnt/c || return
+    test ! -d /mnt/c && return
     $gosu mkdir /c && $gosu mount --bind /mnt/c /c
 
     tee -a $bashrc <<TEE
@@ -29,8 +31,9 @@ TEE
 
 make_python3() {
     remove_pack python3
+
     ver=3.7.2
-    PY3_PREFIX=`pyenv prefix $ver`
+    PY3_PREFIX=$HOME/.pyenv/versions/$ver
     if [ ! -d "$PY3_PREFIX" ];then
         # install dependency
         install['yum']="ncurses-devel zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel xz xz-devel libffi-devel"
@@ -39,6 +42,7 @@ make_python3() {
         pyenv install $ver
         pyenv local $ver
         pyenv versions
+        PY3_PREFIX=`pyenv prefix $ver`
     fi 
     export PY3_CONFIG=`$PY3_PREFIX/bin/python-config --configdir`
     echo "===> python $ver is installed successfully."
@@ -58,42 +62,44 @@ make_vim8() {
     get_from_github vim
     cd vim
     #  run `make distclean' and/or `rm config.cache' and start over
-    make distclean \
-    && ./configure --enable-multibyte     \
-                --with-features=huge      \
-                --enable-rubyinterp       \
-                --enable-perlinterp       \
-                --enable-luainterp        \
-                --enable-python3interp    \
+
+    make distclean 
+    ./configure --with-features=huge          \
+                --enable-python3interp=yes    \
                 --with-python3-config-dir=$PY3_CONFIG  \
-                --enable-fail-if-missing  \
-                --prefix=$local_dir       \
-    && make -j$CPU \
-    && make install DESTDIR=$local_dir
+                --enable-rubyinterp=yes       \
+                --enable-perlinterp=yes       \
+                --enable-luainterp=yes        \
+                --enable-fail-if-missing      \
+                --prefix=$local_dir           
+    make -j$CPUS    
+    #make install DESTDIR=$local_dir
+    make install 
 
     if ! grep "alias vi=$local_bin/vim" $profile > /dev/null 2>&1; then 
         echo "alias vi=$local_bin/vim" >> $profile
     fi
     git config core.editor "$local_bin/vim"
-    echo "===> $local_bin/vim is installed successfully."
+    echo "===> vim is installed successfully."
 }
 
 docker_utils() {
     # refer to https://get.daocloud.io
     if [ ! -x "$(command -v docker)" ]; then
         curl -sSL https://get.daocloud.io/docker | $gosu sh
-        $gosu usermod -aG docker $USER
-
-        # configure docker service
-        docker_service_file=/usr/lib/systemd/system/docker.service
-        if [ -e $docker_service_file ];then
-            $gosu sed -i 's!^\(ExecStart=\).*!\1/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock!' $docker_service_file
-        fi
     fi
 
     if [ ! -e $local_bin/docker-compose ]; then
         curl -sL https://get.daocloud.io/docker/compose/releases/download/1.20.1/docker-compose-`uname -s`-`uname -m` > $local_bin/docker-compose
         chmod +x $local_bin/docker-compose
+    fi
+
+    $gosu usermod -aG docker $USER
+
+    # configure docker service
+    docker_service_file=/usr/lib/systemd/system/docker.service
+    if [ -e $docker_service_file ];then
+        $gosu sed -i 's!^\(ExecStart=\).*!\1/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock!' $docker_service_file
     fi
 }
 
@@ -144,6 +150,7 @@ make_tmux(){
 }
 
 main() {
+    set -eu
     # select what you want to install
     essential
     for_wsl

@@ -1,7 +1,6 @@
 for rc in ~/.git-*
 do
-    echo $rc | grep ".git-credentials" > /dev/null
-    if [ $? -eq 0 ]; then
+    if echo $rc | grep ".git-credentials" > /dev/null;then
         continue
     fi
     source $rc

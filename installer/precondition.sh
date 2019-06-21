@@ -42,6 +42,8 @@ get_from_github () {
         pack_name=$1/$1
     fi
 
+    echo "===> Git clone $pack_name"
+
     if type "git" &> /dev/null ; then
         $git_clone https://github.com/$pack_name
     else
@@ -64,7 +66,7 @@ download() {
     local location=$1
     local url=$2
 
-    set -e
+    
     if [ -x "$(command -v curl)" ];then
         curl -sL -o $location $url
     elif [ -x "$(command -v wget)" ]; then
@@ -73,7 +75,7 @@ download() {
         echo "please install curl/wget firstly."
         exit -1
     fi
-    set +e
+    
 }
 
 distro_identify() {
@@ -98,7 +100,7 @@ pmu_identify() {
 install_pack() {
     local pack_name="$*"
     echo "===> Start to install $pack_name"
-    set -e
+    
     if [ -x "$(command -v yum)" ]; then
         $gosu yum install -y $pack_name
     elif [ -x "$(command -v apt)" ]; then
@@ -107,13 +109,13 @@ install_pack() {
         echo "Package manager is not support this OS. Only support to use yum/apt."
         exit -1
     fi
-    set +e
+    
 }
 
 remove_pack() {
     local pack_name="$*"
     echo "===> Start to remove $pack_name"
-    set -e
+    
     if [ -x "$(command -v yum)" ]; then
         $gosu yum install -y $pack_name
         $gosu yum remove -y $pack_name
@@ -124,7 +126,6 @@ remove_pack() {
         echo "Package manager is not support this OS. Only support to use yum/apt."
         exit -1
     fi
-    set +e
 }
 
 sudo_check() {
