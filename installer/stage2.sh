@@ -4,7 +4,14 @@ setup=$(mktemp -dt "$(basename "$0").XXXXXXXXXX")
 teardown(){
     exit_code=$?
     rm -rf "$setup"
-    exit $exit_code
+    if [ $exit_code -eq 0 ];then
+        echo
+        echo "Installation complete! Will logout in 5 secs, you need to re-login for the profile to take effect."
+        sleep 5
+        pkill -KILL -u $USER
+    else
+        exit $exit_code
+    fi
 }
 trap teardown EXIT 
 
@@ -13,7 +20,7 @@ source $current_dir/precondition.sh
 
 essential() {
     install['yum']="epel-release gcc automake autoconf libtool make tig"
-    install['apt']="build-essential"
+    install['apt']="build-essential automake"
     install_pack ${install["$distro"]}
     echo "===> essential is installed successfully."
 }
@@ -89,11 +96,13 @@ docker_utils() {
     if [ ! -x "$(command -v docker)" ]; then
         curl -sSL https://get.daocloud.io/docker | $gosu sh
     fi
+    echo "===> docker is installed successfully."
 
     if [ ! -e $local_bin/docker-compose ]; then
-        curl -sL https://get.daocloud.io/docker/compose/releases/download/1.20.1/docker-compose-`uname -s`-`uname -m` > $local_bin/docker-compose
+        curl -L https://get.daocloud.io/docker/compose/releases/download/1.20.1/docker-compose-`uname -s`-`uname -m` > $local_bin/docker-compose
         chmod +x $local_bin/docker-compose
     fi
+    echo "===> docker-compose is installed successfully."
 
     $gosu usermod -aG docker $USER
 
@@ -108,7 +117,7 @@ make_tmux(){
     test -e $local_bin/tmux && return
 
     install['yum']="xsel xclip"
-    install['apt']="xsel xclip"
+    install['apt']="xsel xclip byacc"
     install_pack ${install["$distro"]}
 
     cd $setup
