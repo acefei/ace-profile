@@ -63,8 +63,8 @@ setup_fzf() {
     tee $fzfrc <<-'EOF'
 export FZF_FIND_PATH=$HOME
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
-alias vigo='cd $(find $FZF_FIND_PATH -type d | fzf)'
-alias cdgo='cd $(find $FZF_FIND_PATH -type f | fzf)'
+alias vigo='vi $(find $FZF_FIND_PATH -type f | fzf)'
+alias cdgo='cd $(find $FZF_FIND_PATH -type d | fzf)'
 EOF
     echo "source $fzfrc" >> $profile
     echo ">>>>>  Setup fzf successfully..."

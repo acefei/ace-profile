@@ -72,6 +72,9 @@
         syntax on
         colorscheme desert
 
+        " Fix vim takes a very long time to start up. https://stackoverflow.com/a/17719528
+        set clipboard=exclude:.*
+
         set nocompatible                " no vi-compatible
         set linespace=0                 " No extra spaces between rows
         set number                      " Line numbers on
