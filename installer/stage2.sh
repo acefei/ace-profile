@@ -20,7 +20,7 @@ source $current_dir/precondition.sh
 
 essential() {
     install['yum']="epel-release gcc automake autoconf libtool make tig"
-    install['apt']="build-essential automake"
+    install['apt']="build-essential automake tig"
     install_pack ${install["$distro"]}
     echo "===> essential is installed successfully."
 }
@@ -37,7 +37,7 @@ TEE
 }
 
 make_python3() {
-    remove_pack python3
+    remove_pack python3 || :
 
     export PATH="$HOME/.pyenv/bin:$PATH"
     ver=3.7.2
