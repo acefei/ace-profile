@@ -26,6 +26,7 @@
     caa = commit -a --amend
     diffc = diff --cached
     rebase-to-master = !git fetch origin && git rebase origin/master
+    dp = diff HEAD~1 --stat
 
 
 # Get the current branch name
@@ -37,6 +38,3 @@ publish = "!git push -u origin $(git branch-name)"
 
 # Delete the remote version of the current branch
 unpublish = "!git push origin :$(git branch-name)"
-
-# Interactively rebase all the commits on the current branch
-rebase-branch = "!git rebase -i `git merge-base master HEAD`"
