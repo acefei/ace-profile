@@ -20,7 +20,7 @@ source $current_dir/precondition.sh
 
 essential() {
     install['yum']="epel-release gcc automake autoconf libtool make tig"
-    install['apt']="build-essential automake tig"
+    install['apt']="build-essential automake tig nfs-common"
     install_pack ${install["$distro"]}
     echo "===> essential is installed successfully."
 }
