@@ -34,12 +34,6 @@ setup_bash_profile() {
 
     tee -a $profile <<-'EOF'
 export PATH=$PATH:~/.local/bin
-
-# when you are in an interactive shell 
-if [[ $- == *i* ]];then
-    eval "$(ssh-agent)"
-    ssh-add
-fi
 EOF
 
     [ -e $bashrc ] && mv ${bashrc}{,.backup}

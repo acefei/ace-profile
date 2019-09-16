@@ -187,17 +187,10 @@ function corename()   # Get name of app that created a corefile.
     done
 }
 
-function mkbr()
+function enable_ssh_agent()
 {
-   local br_name=$1
-   local br_file=~/.current_branch
-   if [ "x$br_name" != "x" ];then
-       echo $br_name > $br_file 
-   else
-       br_name=$(cat $br_file)
-   fi
-
-   git checkout -b $br_name
+    eval "$(ssh-agent)"
+    ssh-add
 }
 
 function del_git_br()
