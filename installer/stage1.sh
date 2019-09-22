@@ -71,15 +71,6 @@ setup_fpp() {
     echo ">>>>>  Setup fpp successfully..."
 }
 
-setup_vimrc() {
-    [ -e $vimrc ] && mv ${vimrc}{,.backup}
-    [ -e $ideavimrc ] && mv ${ideavimrc}{,.backup}
-    ln -sf $vimrcs/_vimrc_without_plug $vimrc
-    ln -sf $vimrcs/_ideavimrc $ideavimrc
-
-    echo ">>>>>  Add vimrc successfully..."
-}
-
 setup_pyenv() {
     curl_install https://pyenv.run
     pyenvrc=~/.pyenvrc
@@ -95,7 +86,6 @@ main() {
     set -e
     setup_git
     setup_bash_profile
-    setup_vimrc
     config_ssh
     setup_fzf
     setup_fpp
