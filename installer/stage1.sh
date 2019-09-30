@@ -3,7 +3,7 @@
 source $HOME/.ace_profile_env
 
 INSTALLATION_PATH=$PROFILE_PATH/installer
-source $INSTALLATION_PATH/precondition.sh
+source $INSTALLATION_PATH/provision.sh
 
 trap teardown EXIT
 teardown() {
@@ -11,7 +11,7 @@ teardown() {
     echo "Installation complete! To run 'bash' for the updated profile to take effect."
 }
 
-setup_git() {
+config_git() {
     # refer to https://apple.stackexchange.com/a/328144
     git_ver=$(git --version | awk '{print $3}')
     download $HOME/.git-completion.bash https://raw.github.com/git/git/v$git_ver/contrib/completion/git-completion.bash 
@@ -24,7 +24,7 @@ setup_git() {
     echo ">>>>>  Add git config successfully..."
 }
 
-setup_bash_profile() {
+config_profile() {
     echo > $profile
     for f in $bash_profile/_*
     do
@@ -67,29 +67,22 @@ EOF
 setup_fpp() {
     $git_clone https://github.com/facebook/PathPicker.git  ~/.PathPicker
     ln -sf ~/.PathPicker/fpp $local_bin/fpp
-
     echo ">>>>>  Setup fpp successfully..."
 }
 
-setup_pyenv() {
-    curl_install https://pyenv.run
-    pyenvrc=~/.pyenvrc
-    tee $pyenvrc <<-'EOF'
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
-EOF
-    echo "source $pyenvrc" >> $profile
+config_vimrc() {
+    [ -e $vimrc ] && mv ${vimrc}{,.backup}
+    ln -sf $vimrcs/_vimrc_without_plug $vimrc
+    echo ">>>>>  Add vimrc successfully..."
 }
 
 main() {
-    set -e
-    setup_git
-    setup_bash_profile
+    config_profile
+    config_git
+    config_vimrc
     config_ssh
     setup_fzf
     setup_fpp
-    setup_pyenv
 }
 
 ##################### MAIN ##########################

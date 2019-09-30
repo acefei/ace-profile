@@ -16,12 +16,12 @@ teardown(){
 trap teardown EXIT 
 
 current_dir=$(cd `dirname ${BASH_SOURCE[0]}`; pwd)
-source $current_dir/precondition.sh
+source $current_dir/provision.sh
 
 essential() {
     install['yum']="epel-release gcc automake autoconf libtool make tig"
     install['apt']="build-essential automake tig nfs-common"
-    install_pack ${install["$distro"]}
+    install_pack ${install["$pm"]}
     echo "===> essential is installed successfully."
 }
 
@@ -36,17 +36,29 @@ export DOCKER_HOST=tcp://0.0.0.0:2375
 TEE
 }
 
+setup_pyenv() {
+    curl_install https://pyenv.run
+    pyenvrc=~/.pyenvrc
+    tee $pyenvrc <<-'EOF'
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+EOF
+    export PATH="$HOME/.pyenv/bin:$PATH"
+    echo "source $pyenvrc" >> $profile
+}
+
 make_python3() {
     remove_pack python3 || :
+    setup_pyenv
 
-    export PATH="$HOME/.pyenv/bin:$PATH"
     ver=3.7.2
     PY3_PREFIX=$HOME/.pyenv/versions/$ver
     if [ ! -d "$PY3_PREFIX" ];then
         # install dependency
         install['yum']="ncurses-devel zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel xz xz-devel libffi-devel"
         install['apt']="make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl"
-        install_pack ${install["$distro"]}
+        install_pack ${install["$pm"]}
         pyenv install $ver
         PY3_PREFIX=`pyenv prefix $ver`
     fi 
@@ -63,7 +75,7 @@ make_vim8() {
     # re-build vim8 with huge feature
     install['yum']="ncurses-devel perl-devel perl-ExtUtils-Embed ruby-devel lua-devel"
     install['apt']="libncurses5-dev libperl-dev ruby-dev lua5.1 liblua5.1-dev luajit libluajit-5.1"
-    install_pack ${install["$distro"]}
+    install_pack ${install["$pm"]}
     echo "===> vim depandencies are installed successfully."
     
     cd $setup
@@ -81,7 +93,6 @@ make_vim8() {
                 --enable-fail-if-missing      \
                 --prefix=$local_dir           
     make -j$CPUS    
-    #make install DESTDIR=$local_dir
     make install 
 
     if ! grep -q "alias vi=$local_bin/vim" $profile; then 
@@ -118,7 +129,7 @@ make_tmux(){
 
     install['yum']="xsel xclip"
     install['apt']="xsel xclip byacc"
-    install_pack ${install["$distro"]}
+    install_pack ${install["$pm"]}
 
     cd $setup
     # download source files for tmux, libevent and ncurses
@@ -160,7 +171,6 @@ make_tmux(){
 }
 
 main() {
-    set -eu
     # select what you want to install
     essential
     for_wsl
