@@ -193,6 +193,13 @@ function enable_ssh_agent()
     ssh-add
 }
 
+function dwget()
+{
+    local url=$1
+    local cut_dirs=$(dirname $url | perl -ne 'print(split(/\//)-2)')
+    wget -r -nH --cut-dirs=$cut_dirs --no-parent --reject="index.html*" $url
+}
+
 function del_git_br()
 {
     local br_name=$1
