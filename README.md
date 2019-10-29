@@ -4,8 +4,6 @@ curl -sL https://raw.githubusercontent.com/acefei/ace-profile/master/installer/i
 ```
 > NOTE:
 > 1. You need to modify $HOME/.gitconfig for github user info 
-> 2. There are two stage on installation, the first stage is very fast for setting some tools, the second stage will make and install tools that would take more time.
-  you might complete the installation at the end of the first stage by CTRL+C.
 
 
 ## Feature
