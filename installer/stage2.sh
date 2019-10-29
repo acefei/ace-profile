@@ -19,8 +19,8 @@ current_dir=$(cd `dirname ${BASH_SOURCE[0]}`; pwd)
 source $current_dir/provision.sh
 
 essential() {
-    install['yum']="epel-release gcc automake autoconf libtool make tig"
-    install['apt']="build-essential automake tig nfs-common"
+    install['yum']="epel-release gcc automake autoconf libtool make"
+    install['apt']="build-essential automake nfs-common"
     install_pack ${install["$pm"]}
     echo "===> essential is installed successfully."
 }
@@ -174,11 +174,9 @@ main() {
     # select what you want to install
     essential
     make_tmux
-    
-    #for_wsl
-    #make_vim8
-    # install podman to replace docker
-    #docker_utils
+    for_wsl
+    make_vim8
+    docker_utils
 }
 
 main

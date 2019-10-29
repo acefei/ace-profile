@@ -76,17 +76,24 @@ config_vimrc() {
     echo ">>>>>  Add vimrc successfully..."
 }
 
+config_tmux() {
+    [ -e $tmuxconfig ] && mv ${tmuxconfig}{,.backup}
+    ln -sf $config/tmux.conf $tmuxconfig
+    echo ">>>>>  Add tmux config successfully..."
+}
+
 main() {
     config_profile
     config_git
     config_vimrc
     config_ssh
+    config_tmux
     setup_fzf
     setup_fpp
 }
 
 ##################### MAIN ##########################
 main
-echo ">>> Will enter stage two in 5 sec, you might COMPLETE installation right now by CTRL+C"
-sleep 5
-exec $INSTALLATION_PATH/stage2.sh
+#echo ">>> Will enter stage two in 5 sec, you might COMPLETE installation right now by CTRL+C"
+#sleep 5
+#exec $INSTALLATION_PATH/stage2.sh
