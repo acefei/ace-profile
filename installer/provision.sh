@@ -13,6 +13,7 @@ gitconfig=$HOME/.gitconfig
 sshconfig=$HOME/.ssh/config
 local_dir=$HOME/.local
 local_bin=$local_dir/bin
+git_clone='git clone --depth=1 '
 
 # define package name for the different distro 
 declare -A install
@@ -58,7 +59,6 @@ remove_pack() {
 
 get_from_github () {
     local pack_name=''
-    git_clone='git clone --depth=1 '
     if [[ "$pack_name" =~ "/" ]];then
         pack_name=$1
     else

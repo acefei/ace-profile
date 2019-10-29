@@ -172,9 +172,9 @@ make_tmux(){
 
 main() {
     # select what you want to install
+    essential
     make_tmux
     
-    #essential
     #for_wsl
     #make_vim8
     # install podman to replace docker
