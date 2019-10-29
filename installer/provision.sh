@@ -68,7 +68,7 @@ get_from_github () {
     echo "===> Git clone $pack_name"
 
     if type "git" &> /dev/null ; then
-        $git_clone https://github.com/$pack_name
+        git_clone https://github.com/$pack_name
     else
         curl -L https://github.com/$pack_name/archive/master.tar.gz -o ${pack_name##*/}.tar.gz
         tar xvzf ${pack_name##*/}.tar.gz
