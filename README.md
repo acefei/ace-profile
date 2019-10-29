@@ -27,13 +27,17 @@ curl -sL https://raw.githubusercontent.com/acefei/ace-profile/master/installer/i
 ```
     
 - [Facebook PathPicker](https://github.com/facebook/PathPicker) is a simple command line tool that solves the perpetual problem of selecting files out of bash output.
-- [Pyenv](https://github.com/pyenv/pyenv) is Simple Python version management
-  - [ext_install](https://github.com/acefei/ace-profile/blob/master/installer/ext_install) will install python 3.7.2 by default, so you want to set back to system default version, please run `pyenv local system`
 - Upgrading Tmux to be compatible with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm)
 - git command completion and git prompt show
+
+Now we use Centos 8 as devbox ([How to create it](https://github.com/acefei/ace-osinstaller)), so will remove below tools. 
+<s>
+- [Pyenv](https://github.com/pyenv/pyenv) is Simple Python version management
+  - [ext_install](https://github.com/acefei/ace-profile/blob/master/installer/ext_install) will install python 3.7.2 by default, so you want to set back to system default version, please run `pyenv local system`
 - vim8 support 
    - [vim pack](https://github.com/acefei/ace-profile/blob/master/utility/vim_pack) is used to install vim plugins.
    - [_vimrc](https://github.com/acefei/ace-profile/blob/master/vimrcs/_vimrc)
+</s>
     
 ## Reference
 > [.bashrc and .bash_profile](http://tldp.org/LDP/abs/html/sample-bashrc.html)<br>
