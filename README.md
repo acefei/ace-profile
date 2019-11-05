@@ -2,6 +2,11 @@
 ```
 curl -sL https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
 ```
+or
+```
+wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
+```
+
 > NOTE:
 > 1. You need to modify $HOME/.gitconfig for github user info 
 
