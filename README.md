@@ -1,4 +1,5 @@
 ## Installation:
+### Linux 
 ```
 curl -sL https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
 ```
@@ -6,7 +7,10 @@ or
 ```
 wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
 ```
-
+### Windows
+```
+Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/acefei/ace-profile/master/installer/setup-win.ps1'))
+```
 > NOTE:
 > 1. You need to modify $HOME/.gitconfig for github user info 
 
