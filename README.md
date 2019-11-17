@@ -7,14 +7,14 @@ or
 ```
 wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
 ```
+
+> NOTE:
+> 1. You need to modify $HOME/.gitconfig for github user info 
+
 ### Windows
 ```
 Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/acefei/ace-profile/master/installer/setup-win.ps1'))
 ```
-> NOTE:
-> 1. You need to modify $HOME/.gitconfig for github user info 
-
-
 ## Feature
 - [fzf is a general-purpose command-line fuzzy finder](https://github.com/junegunn/fzf)  
   - add the alias `vigo` is used to open selected file from workspace
