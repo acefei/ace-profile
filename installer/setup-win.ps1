@@ -2,5 +2,5 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/in
 
 $Out_File = ".\win.apps "
 wget "https://raw.githubusercontent.com/acefei/ace-profile/master/config/win.apps" -O $Out_File
-choco install $Out_File -y
+cinst $Out_File -y
 rm $Out_File
