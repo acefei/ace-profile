@@ -12,7 +12,7 @@ wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/master/installer/
 > 1. You need to modify $HOME/.gitconfig for github user info 
 
 ### Windows
-Press `Win + X` and select `Windows PowerShell (Admin)`, then run following cmd.
+Press `Win + x + i`, then run following cmd.
 ```
 Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/acefei/ace-profile/master/installer/setup-win.ps1'))
 ```
