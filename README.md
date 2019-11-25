@@ -1,13 +1,21 @@
 ## Installation:
+### Linux 
 ```
 curl -sL https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
 ```
+or
+```
+wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
+```
+
 > NOTE:
 > 1. You need to modify $HOME/.gitconfig for github user info 
-> 2. There are two stage on installation, the first stage is very fast for setting some tools, the second stage will make and install tools that would take more time.
-  you might complete the installation at the end of the first stage by CTRL+C.
 
-
+### Windows
+Press `Win + x + i`, then run following cmd.
+```
+Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/acefei/ace-profile/master/installer/setup-win.ps1'))
+```
 ## Feature
 - [fzf is a general-purpose command-line fuzzy finder](https://github.com/junegunn/fzf)  
   - add the alias `vigo` is used to open selected file from workspace
