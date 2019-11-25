@@ -14,12 +14,12 @@ function fe() { find . -type f -iname '*'"${1:-}"'*' \
 
 #  Find a pattern in a set of files and highlight them:
 #+ (needs a recent version of egrep).
-function fstr()
+function fs()
 {
     OPTIND=1
     local mycase=""
-    local usage="fstr: find string in files.
-Usage: fstr [-i] \"pattern\" [\"filename pattern\"] "
+    local usage="fs: find string in files.
+Usage: fs [-i] \"pattern\" [\"filename pattern\"] "
     while getopts :it opt
     do
         case "$opt" in
