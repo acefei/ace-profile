@@ -25,17 +25,6 @@ essential() {
     echo "===> essential is installed successfully."
 }
 
-for_wsl() {
-    # docker run -it -v /c/Users/acefei/:/data xxx
-    test ! -d /mnt/c && return
-    $gosu mkdir /c && $gosu mount --bind /mnt/c /c
-
-    tee -a $bashrc <<TEE
-# Configure WSL to Connect to the remote docker daemon running in Docker for Windows
-export DOCKER_HOST=tcp://0.0.0.0:2375 
-TEE
-}
-
 setup_pyenv() {
     curl_install https://pyenv.run
     pyenvrc=~/.pyenvrc
@@ -69,6 +58,11 @@ make_python3() {
 }
 
 make_vim8() {
+    if [ $pm == 'apt' ];then
+        install_pack 'vim-nox'
+        return
+    fi
+
     test -e $local_bin/vim && return
     make_python3
 
@@ -125,10 +119,15 @@ docker_utils() {
 }
 
 make_tmux(){
+    if [ $pm == 'apt' ];then
+        install_pack 'tmux'
+        return
+    fi
+
     test -e $local_bin/tmux && return
 
     install['yum']="xsel xclip"
-    install['apt']="xsel xclip byacc"
+    # install['apt']="xsel xclip byacc"
     install_pack ${install["$pm"]}
 
     cd $setup
@@ -170,13 +169,19 @@ make_tmux(){
     echo "===> tmux is installed successfully."
 }
 
+setup_virt() {
+    install['apt']="bridge-utils virtinst"
+    install_pack ${install["$pm"]}
+    echo "===> KVM is installed successfully."
+}
+
 main() {
     # select what you want to install
     essential
     make_tmux
-    for_wsl
     make_vim8
-    docker_utils
+    setup_virt
+    #docker_utils
 }
 
 main

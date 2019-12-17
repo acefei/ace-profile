@@ -76,6 +76,7 @@ setup_fpp() {
 config_vimrc() {
     [ -e $vimrc ] && mv ${vimrc}{,.backup}
     ln -sf $vimrcs/_vimrc_without_plug $vimrc
+    echo "export EDITOR=vi" >> $profile
     echo ">>>>>  Add vimrc successfully..."
 }
 

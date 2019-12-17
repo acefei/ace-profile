@@ -92,7 +92,7 @@ tear_down() {
     # copy _vimrc to ~/.vimrc
     source $HOME/.ace_profile_env
     INSTALLATION_PATH=$PROFILE_PATH/installer
-    source $INSTALLATION_PATH/precondition.sh
+    source $INSTALLATION_PATH/provision.sh
     ln -sf $vimrcs/_vimrc $vimrc
 
 }
