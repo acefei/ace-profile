@@ -16,7 +16,9 @@ Press `Win + x + i`, then run following cmd.
 ```
 Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/acefei/ace-profile/master/installer/setup-win.ps1'))
 ```
-## Feature
+## Extensions
+- [ShellCheck, a static analysis tool for shell scripts](https://github.com/koalaman/shellcheck)
+  - [Vim wrapper for ShellCheck](https://github.com/itspriddle/vim-shellcheck)
 - [fzf is a general-purpose command-line fuzzy finder](https://github.com/junegunn/fzf)  
   - add the alias `vigo` is used to open selected file from workspace
   - add the alias `cdgo` is used to cd into selected directory from workspace
@@ -35,19 +37,21 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.We
 ```
     
 - [Facebook PathPicker](https://github.com/facebook/PathPicker) is a simple command line tool that solves the perpetual problem of selecting files out of bash output.
-- Upgrading Tmux to be compatible with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm)
 - git command completion and git prompt show
-
-Now we use Centos 8 as devbox ([How to create it](https://github.com/acefei/ace-osinstaller)), so will remove below tools. 
-<s>
-- [Pyenv](https://github.com/pyenv/pyenv) is Simple Python version management
-  - [ext_install](https://github.com/acefei/ace-profile/blob/master/installer/ext_install) will install python 3.7.2 by default, so you want to set back to system default version, please run `pyenv local system`
+  - Text-mode interface for git: [tig]](https://github.com/jonas/tig)
 - vim8 support 
    - [vim pack](https://github.com/acefei/ace-profile/blob/master/utility/vim_pack) is used to install vim plugins.
    - [_vimrc](https://github.com/acefei/ace-profile/blob/master/vimrcs/_vimrc)
+
+Now we use Centos 8 as devbox ([How to create it](https://github.com/acefei/ace-osinstaller)), so will remove below tools. 
+<s>
+- Upgrading Tmux to be compatible with [Tmux Plugin Manager](https://github.com/tmux-plugins/tpm)
+- [Pyenv](https://github.com/pyenv/pyenv) is Simple Python version management
+  - [ext_install](https://github.com/acefei/ace-profile/blob/master/installer/ext_install) will install python 3.7.2 by default, so you want to set back to system default version, please run `pyenv local system`
 </s>
     
 ## Reference
 > [.bashrc and .bash_profile](http://tldp.org/LDP/abs/html/sample-bashrc.html)<br>
 > [junegunn/dotfiles](https://github.com/junegunn/dotfiles)<br>
 > [Vim8 package](https://vi.stackexchange.com/a/11733)<br>
+> [Record and share your terminal sessions](https://asciinema.org/)<br>

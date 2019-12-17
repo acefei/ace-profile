@@ -175,12 +175,19 @@ setup_virt() {
     echo "===> KVM is installed successfully."
 }
 
+setup_shellcheck() {
+    install['apt']="shellcheck"
+    install_pack ${install["$pm"]}
+    echo "===> shellcheck is installed successfully."
+}
+
 main() {
     # select what you want to install
     essential
     make_tmux
     make_vim8
     setup_virt
+    setup_shellcheck
     #docker_utils
 }
 

@@ -12,6 +12,9 @@ declare -A PLUGS
 #                modille/groovy.vim \
 #                "
 
+PLUGS['shell']="\
+                itspriddle/vim-shellcheck \
+                "
 PLUGS['generic']="\
                   w0rp/ale \
                   ctrlpvim/ctrlp.vim \
