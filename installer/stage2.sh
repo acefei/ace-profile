@@ -6,9 +6,8 @@ teardown(){
     rm -rf "$setup"
     if [ $exit_code -eq 0 ];then
         echo
-        echo "Installation complete! Will logout in 5 secs, you need to re-login for the profile to take effect."
-        sleep 5
-        pkill -KILL -u $USER
+        echo "Installation complete!"
+        ask_exit
     else
         exit $exit_code
     fi

@@ -105,5 +105,17 @@ sudo_check() {
         exit 1
     fi
 
-    USER_HOME=$(eval "cd ~$SUDO_USER; pwd")
+    export USER_HOME=$(eval "cd ~$SUDO_USER; pwd")
+}
+
+ask_exit() {
+    read -rp "[?] Re-login for the profile to take effect (y/n)? " answer
+	case ${answer:0:1} in
+		y|Y )
+            pkill -KILL -u $USER
+		;;
+		* )
+			echo "[*] Aborting..."
+		;;
+	esac
 }

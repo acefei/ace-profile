@@ -98,6 +98,6 @@ main() {
 
 ##################### MAIN ##########################
 main
-#echo ">>> Will enter stage two in 5 sec, you might COMPLETE installation right now by CTRL+C"
-#sleep 5
-#exec $INSTALLATION_PATH/stage2.sh
+echo ">>> Entering stage2 in 6 sec, you might ABORT installation right now by CTRL+C"
+sleep 6
+exec $INSTALLATION_PATH/stage2.sh
