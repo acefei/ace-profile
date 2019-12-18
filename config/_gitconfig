@@ -37,3 +37,8 @@ publish = "!git push -u origin $(git branch-name)"
 
 # Delete the remote version of the current branch
 unpublish = "!git push origin :$(git branch-name)"
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
