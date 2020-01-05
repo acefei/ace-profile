@@ -14,6 +14,7 @@ declare -A PLUGS
 
 PLUGS['shell']="\
                 itspriddle/vim-shellcheck \
+                vim-scripts/bash-support.vim \
                 "
 PLUGS['generic']="\
                   w0rp/ale \

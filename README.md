@@ -41,6 +41,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.We
   - Text-mode interface for git: [tig]](https://github.com/jonas/tig)
 - vim8 support 
    - [vim pack](https://github.com/acefei/ace-profile/blob/master/utility/vim_pack) is used to install vim plugins.
+   - [bash support plugin](https://github.com/vim-scripts/bash-support.vim)
    - [_vimrc](https://github.com/acefei/ace-profile/blob/master/vimrcs/_vimrc)
 
 Now we use Centos 8 as devbox ([How to create it](https://github.com/acefei/ace-osinstaller)), so will remove below tools. 
@@ -50,8 +51,10 @@ Now we use Centos 8 as devbox ([How to create it](https://github.com/acefei/ace-
   - [ext_install](https://github.com/acefei/ace-profile/blob/master/installer/ext_install) will install python 3.7.2 by default, so you want to set back to system default version, please run `pyenv local system`
 </s>
     
+
 ## Reference
 > [.bashrc and .bash_profile](http://tldp.org/LDP/abs/html/sample-bashrc.html)<br>
 > [junegunn/dotfiles](https://github.com/junegunn/dotfiles)<br>
 > [Vim8 package](https://vi.stackexchange.com/a/11733)<br>
 > [Record and share your terminal sessions](https://asciinema.org/)<br>
+> [hotkey for bash-support.vim](https://lug.fh-swf.de/vim/vim-bash/bash-hotkeys.pdf)
