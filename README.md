@@ -1,3 +1,5 @@
+![sync to gitee](https://github.com/acefei/ace-profile/workflows/sync%20to%20gitee/badge.svg)
+
 ## Installation:
 ### Linux 
 ```
