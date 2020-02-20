@@ -8,14 +8,10 @@ declare -A PLUGS
 #                google/yapf\
 #                "
 
-#PLUGS['groovy']="\
-#                modille/groovy.vim \
-#                "
-
 PLUGS['shell']="\
                 itspriddle/vim-shellcheck \
-                vim-scripts/bash-support.vim \
                 "
+
 PLUGS['generic']="\
                   w0rp/ale \
                   ctrlpvim/ctrlp.vim \
@@ -23,7 +19,7 @@ PLUGS['generic']="\
                   scrooloose/nerdtree \
                   scrooloose/nerdcommenter \
                   SirVer/ultisnips \
-                  honza/vim-snippets\
+                  acefei/vim-snippets\
                   jiangmiao/auto-pairs \
                   maralla/completor.vim \
                   mhinz/vim-signify \

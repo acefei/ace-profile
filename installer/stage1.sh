@@ -42,6 +42,14 @@ EOF
     echo ">>>>>  Add bash profile successfully..."
 }
 
+disable_ctrls_in_xterm() {
+    tee -a $profile <<-'EOF'
+# Disable flow control for that terminal completely
+# To free the shortcuts Ctrl+s and Ctrl+q
+stty -ixon
+EOF
+}
+
 config_ssh() {
     [ -d $HOME/.ssh ] || mkdir $HOME/.ssh
     ln -sf $config/ssh_config $sshconfig

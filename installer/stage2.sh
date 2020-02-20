@@ -174,6 +174,12 @@ setup_virt() {
     echo "===> KVM is installed successfully."
 }
 
+setup_python_formatter() {
+    $gosu pip install -y black isort
+    $gosu pip3 install -y black isort
+    echo "===> python formatter are installed successfully."
+}
+
 setup_shellcheck() {
     install['apt']="shellcheck"
     install_pack ${install["$pm"]}
@@ -187,6 +193,7 @@ main() {
     make_vim8
     setup_virt
     setup_shellcheck
+    setup_python_formatter
     #docker_utils
 }
 
