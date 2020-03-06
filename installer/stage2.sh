@@ -175,7 +175,9 @@ setup_virt() {
 }
 
 setup_python_formatter() {
-    $gosu pip install -y black isort
+    install['apt']="python3-pip"
+    install_pack ${install["$pm"]}
+
     $gosu pip3 install -y black isort
     echo "===> python formatter are installed successfully."
 }
