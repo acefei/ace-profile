@@ -23,10 +23,14 @@
     brv = branch -vv
     st = status
     rv = remote -vv
-    caa = commit -a --amend
     dc = diff --cached
-    dp = diff HEAD~1 --stat
-    rebase-to-master = !git fetch origin && git rebase origin/master
+    dcf = diff --name-only --cached
+    dp = diff HEAD^
+    dpf = diff --name-only HEAD^
+    caa = commit -a --amend
+    pf = push -f
+    rtm = !git fetch origin && git rebase origin/master
+    rc = !git add -A && git rebase --continue
 
 # Get the current branch name
 branch-name = "!git rev-parse --abbrev-ref HEAD"
@@ -37,6 +41,7 @@ publish = "!git push -u origin $(git branch-name)"
 
 # Delete the remote version of the current branch
 unpublish = "!git push origin :$(git branch-name)"
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
