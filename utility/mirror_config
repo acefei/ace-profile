@@ -1,0 +1,27 @@
+#!/bin/bash
+set -eu
+
+apt_config() {
+    echo "---> set apt mirror"
+    sudo cp /etc/apt/sources.list{,.orig}
+    sudo perl -pi -e "s#(?:deb|security).debian.org#mirrors.ustc.edu.cn#g"  /etc/apt/sources.list
+}
+
+pip_config() {
+    echo "---> set pip mirror"
+    pip3 config set global.index-url 'http://mirrors.aliyun.com/pypi/simple/'
+    pip3 config set global.trusted-host 'mirrors.aliyun.com'
+}
+
+npm_config() {
+    echo "---> set npm mirror"
+    npm config set registry https://registry.npm.taobao.org
+}
+
+main() {
+    apt_config
+    pip_config
+    npm_config
+}
+
+main

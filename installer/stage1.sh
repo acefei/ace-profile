@@ -32,14 +32,20 @@ config_profile() {
         echo "source $f" >> $profile
     done
 
-    tee -a $profile <<-'EOF'
-export PATH=$PATH:~/.local/bin
-EOF
-
     [ -e $bashrc ] && mv ${bashrc}{,.backup}
     ln -sf $profile $bashrc
 
     echo ">>>>>  Add bash profile successfully..."
+}
+
+config_utility() {
+    echo 'export PATH=$PATH:~/.local/bin' >> $profile
+    cd $local_bin
+    for cmd in $(cd $PROFILE_PATH/utility/ && echo *)
+    do
+        ln -sf  $PROFILE_PATH/utility/$cmd $cmd
+    done
+    echo ">>>>>  Add utility to local bin successfully..."
 }
 
 disable_ctrls_in_xterm() {
@@ -96,6 +102,7 @@ config_tmux() {
 
 main() {
     config_profile
+    config_utility
     config_git
     config_vimrc
     config_ssh
