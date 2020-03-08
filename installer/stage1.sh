@@ -5,8 +5,8 @@ source $HOME/.ace_profile_env
 INSTALLATION_PATH=$PROFILE_PATH/installer
 source $INSTALLATION_PATH/provision.sh
 
-trap teardown EXIT
-teardown() {
+trap _teardown EXIT
+_teardown() {
     echo
     echo "Installation complete! To run 'bash' for the updated profile to take effect."
 }
@@ -20,40 +20,42 @@ config_git() {
 
     [ -e $gitconfig ] && mv ${gitconfig}{,.backup}
     ln -sf $config/_gitconfig $gitconfig
-
-    echo ">>>>>  Add git config successfully..."
 }
 
 config_profile() {
     echo > $profile
-    for f in $bash_profile/_*
-    do
-        echo "source $f in $profile"
-        echo "source $f" >> $profile
+    tee -a $profile >/dev/null <<-'EOF'
+
+# Disable flow control for that terminal completely
+# To free the shortcuts Ctrl+s and Ctrl+q
+stty -ixon
+
+# local bin
+export PATH=$PATH:~/.local/bin
+
+# default EDITOR
+export EDITOR=vi
+
+# fzf
+[ -f ~/.fzfrc ] && source ~/.fzfrc
+
+EOF
+
+    local pf
+    for pf in $bash_profile/_* ;do
+        echo "source $pf" >> $profile
     done
 
     [ -e $bashrc ] && mv ${bashrc}{,.backup}
     ln -sf $profile $bashrc
-
-    echo ">>>>>  Add bash profile successfully..."
 }
 
 config_utility() {
-    echo 'export PATH=$PATH:~/.local/bin' >> $profile
     cd $local_bin
     for cmd in $(cd $PROFILE_PATH/utility/ && echo *)
     do
         ln -sf  $PROFILE_PATH/utility/$cmd $cmd
     done
-    echo ">>>>>  Add utility to local bin successfully..."
-}
-
-disable_ctrls_in_xterm() {
-    tee -a $profile <<-'EOF'
-# Disable flow control for that terminal completely
-# To free the shortcuts Ctrl+s and Ctrl+q
-stty -ixon
-EOF
 }
 
 config_ssh() {
@@ -62,57 +64,52 @@ config_ssh() {
 
     # fix Bad owner or permissions on XXX
     chmod 600 $sshconfig
-
-    echo ">>>>>  Add config in $HOME/.ssh successfully..."
 }
 
 setup_fzf() {
-    $git_clone https://github.com/junegunn/fzf.git ~/.fzf
-    yes | ~/.fzf/install
+    $git_clone https://github.com/junegunn/fzf.git ~/.fzf 
 
-    fzfrc=~/.fzfrc
-    tee $fzfrc <<-'EOF'
+    yes | ~/.fzf/install > /dev/null
+
+    tee ~/.fzfrc >/dev/null <<-'EOF'
 export FZF_FIND_PATH=$HOME
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
+
 alias vigo='vi $(find $FZF_FIND_PATH -type f | fzf)'
 alias cdgo='cd $(find $FZF_FIND_PATH -type d | fzf)'
 EOF
-    echo "source $fzfrc" >> $profile
-    echo ">>>>>  Setup fzf successfully..."
 }
 
 setup_fpp() {
     $git_clone https://github.com/facebook/PathPicker.git  ~/.PathPicker
     ln -sf ~/.PathPicker/fpp $local_bin/fpp
-    echo ">>>>>  Setup fpp successfully..."
 }
 
 config_vimrc() {
     [ -e $vimrc ] && mv ${vimrc}{,.backup}
     ln -sf $vimrcs/_vimrc_without_plug $vimrc
-    echo "export EDITOR=vi" >> $profile
-    echo ">>>>>  Add vimrc successfully..."
 }
 
 config_tmux() {
     [ -e $tmuxconfig ] && mv ${tmuxconfig}{,.backup}
     ln -sf $config/tmux.conf $tmuxconfig
-    echo ">>>>>  Add tmux config successfully..."
 }
 
-main() {
-    config_profile
-    config_utility
-    config_git
-    config_vimrc
-    config_ssh
-    config_tmux
-    setup_fzf
-    setup_fpp
+_main() {
+    local func_list=$(install_functions)
+    local func
+    for func in $func_list; do
+        {
+            eval ${func} 
+            echo "---> $func done..."
+
+        } &
+    done
+    wait
 }
 
 ##################### MAIN ##########################
-main
-echo ">>> Entering stage2 in 6 sec, you might ABORT installation right now by CTRL+C"
-sleep 6
+_main
+
+# continue stage2 with sudo priviledge.
 exec $INSTALLATION_PATH/stage2.sh

@@ -3,15 +3,18 @@
 ## Installation:
 ### Linux 
 ```
-curl -sL https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
 ```
 or
 ```
 wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
 ```
-
-> NOTE:
-> 1. You need to modify $HOME/.gitconfig for github user info 
+> Note:
+> 1. Sometime the cmd dosn't work on WSL, it might be caused by DOS line-endings, that need add `tr -d '\r'` ahead of `bash`, like 
+> ``` wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | tr -d '\r' | bash ```
+> 2. Using the pipe would install everythings in the stage2, if you want to select some of them, it'd better run it by two steps. 
+> ``` wget https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh && bash install.sh ```
+> 3. You need to modify $HOME/.gitconfig for github user info 
 
 ### Windows
 Press `Win + x + i`, then run following cmd.
@@ -55,6 +58,7 @@ Now we use Centos 8 as devbox ([How to create it](https://github.com/acefei/ace-
     
 
 ## Reference
+> [bash cheatsheet](https://github.com/rstacruz/cheatsheets/blob/master/bash.md)
 > [.bashrc and .bash_profile](http://tldp.org/LDP/abs/html/sample-bashrc.html)<br>
 > [junegunn/dotfiles](https://github.com/junegunn/dotfiles)<br>
 > [Vim8 package](https://vi.stackexchange.com/a/11733)<br>

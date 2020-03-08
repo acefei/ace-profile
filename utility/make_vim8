@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# re-build vim8 with huge feature
+install['yum']="ncurses-devel perl-devel perl-ExtUtils-Embed ruby-devel lua-devel"
+install['apt']="libncurses5-dev libperl-dev ruby-dev lua5.1 liblua5.1-dev luajit libluajit-5.1"
+install_pack ${install["$pm"]}
+echo "===> vim depandencies are installed successfully."
+
+cd $setup
+get_from_github vim
+cd vim
+#  run `make distclean' and/or `rm config.cache' and start over
+
+make distclean
+./configure --with-features=huge          \
+            --enable-python3interp=yes    \
+            --with-python3-config-dir=$PY3_CONFIG  \
+            --enable-rubyinterp=yes       \
+            --enable-perlinterp=yes       \
+            --enable-luainterp=yes        \
+            --enable-fail-if-missing      \
+            --prefix=$local_dir
+make -j$CPUS
+make install
+
+if ! grep -q "alias vi=$local_bin/vim" $profile; then
+    echo "alias vi=$local_bin/vim" >> $profile
+fi
+git config --global core.editor "$local_bin/vim"

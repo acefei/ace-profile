@@ -8,5 +8,5 @@ fi
 echo "PROFILE_PATH=$HOME/.myprofile" > $HOME/.ace_profile_env
 source $HOME/.ace_profile_env
 
-git clone https://github.com/acefei/ace-profile.git $PROFILE_PATH
+git clone -q https://github.com/acefei/ace-profile.git $PROFILE_PATH
 $PROFILE_PATH/installer/stage1.sh

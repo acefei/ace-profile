@@ -1,0 +1,44 @@
+#!/bin/bash
+
+test -e $local_bin/tmux && return
+
+install['yum']="xsel xclip"
+# install['apt']="xsel xclip byacc"
+install_pack ${install["$pm"]}
+
+cd $setup
+# download source files for tmux, libevent and ncurses
+get_from_github tmux
+get_from_github libevent
+curl -L ftp://ftp.gnu.org/gnu/ncurses/ncurses-6.0.tar.gz -o ncurses.tar.gz
+tar xvzf ncurses.tar.gz
+
+# libevent
+cd $setup/libevent*
+./autogen.sh
+./configure --prefix=${local_dir} --disable-shared
+make -j$CPUS
+make install
+
+# ncurses
+cd $setup/ncurses-*
+export CPPFLAGS="-P" # otherwise ncurse fails to build on gcc 5.x (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61832)
+./configure --prefix=${local_dir} --without-debug --without-shared --without-normal --without-ada
+make -j$CPUS
+make install
+
+# tmux
+cd $setup/tmux*
+./autogen.sh
+./configure CFLAGS="-I$local_dir/include -I$local_dir/include/ncurses" LDFLAGS="-L$local_dir/lib -L$local_dir/include/ncurses -L$local_dir/include"
+CPPFLAGS="-I$local_dir/include -I$local_dir/include/ncurses" LDFLAGS="-static -L$local_dir/include -L$local_dir/include/ncurses -L$local_dir/lib"
+make -j$CPUS
+cp tmux $local_dir/bin
+
+# tmux plugins
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+# add tmux config
+ln -sf $config/tmux.conf $tmuxconfig
+
+echo ">>>>>  Add tmux config successfully..."

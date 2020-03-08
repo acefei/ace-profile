@@ -5,6 +5,7 @@ CWD=$(cd `dirname ${BASH_SOURCE[0]}`; pwd)
 bash_profile=$CWD/../bash_profile
 vimrcs=$CWD/../vimrcs
 config=$CWD/../config
+utility=$CWD/../utility
 tmuxconfig=$HOME/.tmux.conf
 bashrc=$HOME/.bashrc
 profile=$HOME/.bash_profile
@@ -13,11 +14,12 @@ gitconfig=$HOME/.gitconfig
 sshconfig=$HOME/.ssh/config
 local_dir=$HOME/.local
 local_bin=$local_dir/bin
-git_clone='git clone --depth=1 '
+git_clone='git clone -q --depth=1 '
 
 # define package name for the different distro 
 declare -A install
 mkdir -p $local_bin
+
 gosu=''
 if [ `id -u` -ne 0 ];then  
     gosu=' sudo '
@@ -47,13 +49,17 @@ esac
 
 install_pack() {
     local pack_name="$*"
-    echo "===> Installing $pack_name"
+    if [ -z "$pack_name" ];then 
+        echo "no package need to install"
+        return 
+    fi
+    echo "Installing $pack_name"
     $gosu $pm install -y $pack_name
 }
 
 remove_pack() {
     local pack_name="$*"
-    echo "===> Removing $pack_name"
+    echo "Removing $pack_name"
     $gosu $pm remove -y $pack_name
 }
 
@@ -65,7 +71,7 @@ get_from_github () {
         pack_name=$1/$1
     fi
 
-    echo "===> Git clone $pack_name"
+    echo "Git clone $pack_name"
 
     if type "git" &> /dev/null ; then
         $git_clone https://github.com/$pack_name
@@ -106,6 +112,14 @@ sudo_check() {
     fi
 
     export USER_HOME=$(eval "cd ~$SUDO_USER; pwd")
+}
+
+command_exists() {
+	command -v "$@" > /dev/null 2>&1
+}
+
+install_functions() {
+    grep -Po "^[^_][\w-]+(?=\(\))" $0
 }
 
 ask_exit() {
