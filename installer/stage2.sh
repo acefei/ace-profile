@@ -6,7 +6,6 @@ setup=$(mktemp -dt "$(basename "$0").XXXXXXXXXX")
 # Only print error log on errexit
 errlog=$setup/install_err.log
 exec 3>&2
-exec 2>$errlog
 _teardown(){
     local exit_code=$?
     exec 2>&3
@@ -80,6 +79,9 @@ _main() {
     echo "Start installing checked options..."
     local func_list=$(install_functions)
     source $current_dir/multiselect $func_list 
+
+    # Move code here as the output from `read -p` would be sent to fd 2
+    exec 2>$errlog
 
     local func
     for func in ${CHECKED_OPTIONS[@]} ;do
