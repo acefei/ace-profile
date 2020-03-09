@@ -38,6 +38,7 @@ export EDITOR=vi
 
 # fzf
 [ -f ~/.fzfrc ] && source ~/.fzfrc
+[ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 EOF
 
@@ -100,7 +101,7 @@ _main() {
     local func
     for func in $func_list; do
         {
-            eval ${func} 
+            ${func} 
             echo "---> $func done..."
 
         } &

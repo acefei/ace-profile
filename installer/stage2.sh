@@ -1,19 +1,26 @@
 #!/bin/bash
-set -eu
+set -euo pipefail
 
 setup=$(mktemp -dt "$(basename "$0").XXXXXXXXXX")
+
+# Only print error log on errexit
+errlog=$setup/install_err.log
+exec 3>&2
+exec 2>$errlog
 _teardown(){
     local exit_code=$?
+    exec 2>&3
     rm -rf "$setup"
     if [ $exit_code -eq 0 ];then
         echo
         echo "Installation complete!"
         ask_exit
     else
+        cat $errlog >&2
         exit $exit_code
     fi
 }
-trap _teardown EXIT
+trap _teardown EXIT 
 
 current_dir=$(cd `dirname ${BASH_SOURCE[0]}`; pwd)
 source $current_dir/provision.sh
@@ -21,6 +28,18 @@ source $current_dir/provision.sh
 build-essential() {
     install['yum']="epel-release gcc automake autoconf libtool make git-lfs"
     install['apt']="build-essential automake nfs-common git-lfs"
+    install_pack ${install["$pm"]}
+}
+
+nodejs-lts() {
+    if [ "$pm" == "yum" ]; then
+        curl -sL https://rpm.nodesource.com/setup_12.x | sudo -E bash -
+    elif [ "$pm" == "apt" ]; then
+        curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+    fi
+
+    install['apt']='nodejs'
+    install['yum']='nodejs'
     install_pack ${install["$pm"]}
 }
 
@@ -64,8 +83,9 @@ _main() {
 
     local func
     for func in ${CHECKED_OPTIONS[@]} ;do
-        eval "$func >/dev/null 2>.install.err"
-        echo "---> Install $func successfully."
+        echo "---> Installing $func."
+        $func >/dev/null
+        echo "---> Install $func done."
     done
 }
 
