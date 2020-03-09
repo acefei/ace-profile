@@ -11,7 +11,10 @@ install_docker() {
 
 install_k3s() {
   curl -sfL https://get.k3s.io | sh 
-  sudo apt install -y k3d
+}
+
+install_k3d() {
+  curl -s https://raw.githubusercontent.com/rancher/k3d/master/install.sh | bash
 }
 
 main() {
@@ -20,6 +23,9 @@ main() {
     fi
 
     install_k3s
+    install_k3d
+
+    echo "please relogin for the configuration to take affect."
 }
 
 main

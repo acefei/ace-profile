@@ -4,7 +4,7 @@ set -euo pipefail
 setup=$(mktemp -dt "$(basename "$0").XXXXXXXXXX")
 
 # Only print error log on errexit
-errlog=$setup/install_err.log
+errlog=/tmp/install_err.log
 exec 3>&2
 _teardown(){
     local exit_code=$?
@@ -16,6 +16,7 @@ _teardown(){
         ask_exit
     else
         cat $errlog >&2
+        rm -rf $errlog
         exit $exit_code
     fi
 }
@@ -65,6 +66,28 @@ qemu-kvm() {
 
     install['apt']='bridge-utils virtinst'
     install['yum']=''
+    install_pack ${install["$pm"]}
+}
+
+vscode() {
+    # Pre-install for vscode common issue 
+    # https://code.visualstudio.com/docs/setup/linux#_common-questions
+    install['apt']="gvfs-bin"
+    install['yum']=""
+    install_pack ${install["$pm"]}
+    
+    echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
+    # VSCODE installation
+    if [ "$pm" == "yum" ]; then
+        sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+        sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+    elif [ "$pm" == "apt" ]; then
+        wget -O $setup/vscode.deb https://go.microsoft.com/fwlink/?LinkID=760868
+    fi
+
+    install['apt']="$setup/vscode.deb"
+    install['yum']="code"
     install_pack ${install["$pm"]}
 }
 
