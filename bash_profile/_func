@@ -137,9 +137,7 @@ function mydf()         # Pretty-print of 'df' output.
 
 function my_ip() # Get IP adress on ethernet.
 {
-    MY_IP=$(/sbin/ifconfig eth0 | awk '/inet/ { print $2 } ' |
-      sed -e s/addr://)
-    echo ${MY_IP:-"Not connected"}
+    ip a s $(ip r | sed -n '/^default/s/.*\(dev.*\)/\1/p') | sed -n '/inet/s/.*inet \([^\/]*\).*/\1/p'
 }
 
 function ii()   # Get current host related info.
