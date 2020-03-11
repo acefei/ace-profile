@@ -31,25 +31,13 @@ build-essential() {
     install_pack ${install["$pm"]}
 }
 
-nodejs-lts() {
-    if [ "$pm" == "yum" ]; then
-        curl -sL https://rpm.nodesource.com/setup_12.x | sudo -E bash -
-    elif [ "$pm" == "apt" ]; then
-        curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-    fi
-
-    install['apt']='nodejs'
-    install['yum']='nodejs'
-    install_pack ${install["$pm"]}
-}
-
 vim8() {
     install['apt']='vim-nox'
     install['yum']='vim-enhanced'
     install_pack ${install["$pm"]}
 
     #install vim plugin
-    $utility/vim_pack
+    $utility/vim_pack &
 }
 
 tmux(){
@@ -66,6 +54,28 @@ qemu-kvm() {
 
     install['apt']='bridge-utils virtinst'
     install['yum']=''
+    install_pack ${install["$pm"]}
+}
+
+shellcheck() {
+    install['apt']='shellcheck'
+    install['yum']='ShellCheck'
+    install_pack ${install["$pm"]}
+}
+
+nodejs-lts() {
+    local nodesource_list=/etc/apt/sources.list.d/nodesource.list
+    if [ ! -f "$nodesource_list" ];then
+        if [ "$pm" == "yum" ]; then
+            curl -sL https://rpm.nodesource.com/setup_12.x | sudo -E bash -
+        elif [ "$pm" == "apt" ]; then
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            [ -n "$SET_MIRROR" ] && sudo perl -pi -e "s#https://deb.nodesource.com/#http://mirrors.ustc.edu.cn/nodesource/deb/#g" $nodesource_list
+        fi
+    fi
+
+    install['apt']='nodejs'
+    install['yum']='nodejs'
     install_pack ${install["$pm"]}
 }
 
@@ -88,12 +98,6 @@ vscode() {
 
     install['apt']="$setup/vscode.deb"
     install['yum']="code"
-    install_pack ${install["$pm"]}
-}
-
-shellcheck() {
-    install['apt']='shellcheck'
-    install['yum']='ShellCheck'
     install_pack ${install["$pm"]}
 }
 

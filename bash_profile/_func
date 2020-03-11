@@ -137,7 +137,7 @@ function mydf()         # Pretty-print of 'df' output.
 
 function my_ip() # Get IP adress on ethernet.
 {
-    ip a s $(ip r | sed -n '/^default/s/.*\(dev.*\)/\1/p') | sed -n '/inet/s/.*inet \([^\/]*\).*/\1/p'
+    ip a s $(ip r | sed -n '/^default/s/.*\(dev [^ ]*\).*/\1/p') | sed -n '/inet/s/.*inet \([^\/]*\).*/\1/p'
 }
 
 function ii()   # Get current host related info.

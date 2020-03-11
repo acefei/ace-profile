@@ -1,27 +1,47 @@
 #!/bin/bash
-set -eu
+
+_command_exists() {
+	command -v "$@" > /dev/null 2>&1
+}
 
 apt_config() {
-    echo "---> set apt mirror"
-    sudo cp /etc/apt/sources.list{,.orig}
-    sudo perl -pi -e "s#(?:deb|security).debian.org#mirrors.ustc.edu.cn#g"  /etc/apt/sources.list
+    if [ -f '/etc/apt/sources.list' ];then
+        [ -f '/etc/apt/sources.list.orig' ] || sudo cp /etc/apt/sources.list{,.orig}
+        sudo perl -pi -e "s#(?:deb|security).debian.org#mirrors.ustc.edu.cn#g;\
+             s#(?:archive|security).ubuntu.com#mirrors.ustc.edu.cn#g"  /etc/apt/sources.list
+        sudo apt update
+    fi
 }
 
 pip_config() {
-    echo "---> set pip mirror"
+    _command_exists pip3 || return
+
     pip3 config set global.index-url 'http://mirrors.aliyun.com/pypi/simple/'
     pip3 config set global.trusted-host 'mirrors.aliyun.com'
 }
 
 npm_config() {
-    echo "---> set npm mirror"
+    _command_exists npm || return
+
     npm config set registry https://registry.npm.taobao.org
 }
 
-main() {
-    apt_config
-    pip_config
-    npm_config
+_install_functions() {
+    grep -Po "^[^_][\w-]+(?=\(\))" $0
 }
 
-main
+_main() {
+    local func_list=$(_install_functions)
+    local func
+    for func in $func_list; do
+        {
+            echo "---> start $func..."
+            ${func}
+            echo "---> $func done..."
+
+        } &
+    done
+    wait
+}
+
+_main

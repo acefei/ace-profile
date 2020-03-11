@@ -9,6 +9,11 @@ or
 ```
 wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | bash
 ```
+#### In GFW
+```
+curl -fsSL https://gitee.com/acefei/ace-profile/raw/master/installer/install.sh | bash -s gitee
+```
+
 > Note:
 > 1. Sometime the cmd dosn't work on WSL, it might be caused by DOS line-endings, that need add `tr -d '\r'` ahead of `bash`, like 
 > ``` wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/master/installer/install.sh | tr -d '\r' | bash ```

@@ -14,9 +14,10 @@ _teardown() {
 config_git() {
     # refer to https://apple.stackexchange.com/a/328144
     git_ver=$(git --version | awk '{print $3}')
-    download $HOME/.git-completion.bash https://raw.github.com/git/git/v$git_ver/contrib/completion/git-completion.bash 
-    download $HOME/.git-prompt.sh https://raw.githubusercontent.com/git/git/v$git_ver/contrib/completion/git-prompt.sh 
-    download $HOME/.git-flow-completion.bash https://raw.githubusercontent.com/bobthecow/git-flow-completion/master/git-flow-completion.bash
+    git_url=https://raw.githubusercontent.com/git/git
+    [ -n "$USE_GITEE" ] && git_url=https://gitee.com/mirrorgit/git/raw
+    download $HOME/.git-completion.bash $git_url/v$git_ver/contrib/completion/git-completion.bash 
+    download $HOME/.git-prompt.sh $git_url/v$git_ver/contrib/completion/git-prompt.sh 
 
     [ -e $gitconfig ] && mv ${gitconfig}{,.backup}
     ln -sf $config/_gitconfig $gitconfig
@@ -28,7 +29,11 @@ config_profile() {
 
 # Disable flow control for that terminal completely
 # To free the shortcuts Ctrl+s and Ctrl+q
-stty -ixon
+# stty -ixon
+
+# history
+export HISTSIZE=100
+export HISTFILESIZE=100
 
 # local bin
 export PATH=$PATH:~/.local/bin
@@ -68,7 +73,9 @@ config_ssh() {
 }
 
 setup_fzf() {
-    $git_clone https://github.com/junegunn/fzf.git ~/.fzf 
+    git_url=https://github.com/junegunn/fzf.git
+    [ -n "$USE_GITEE" ] && git_url=https://gitee.com/open-resource/fzf.git
+    $git_clone $git_url ~/.fzf 
 
     yes | ~/.fzf/install > /dev/null
 
@@ -82,7 +89,9 @@ EOF
 }
 
 setup_fpp() {
-    $git_clone https://github.com/facebook/PathPicker.git  ~/.PathPicker
+    git_url=https://github.com/facebook/PathPicker.git 
+    [ -n "$USE_GITEE" ] && git_url=https://gitee.com/mirrors/PathPicker.git
+    $git_clone $git_url ~/.PathPicker
     ln -sf ~/.PathPicker/fpp $local_bin/fpp
 }
 
@@ -96,11 +105,18 @@ config_tmux() {
     ln -sf $config/tmux.conf $tmuxconfig
 }
 
+_set_mirror() {
+    [ -z "$USE_GITEE" ] && return
+    export SET_MIRROR=yes
+    $utility/deploy_mirror ||:
+}
+
 _main() {
     local func_list=$(install_functions)
     local func
     for func in $func_list; do
         {
+            echo "---> start $func..."
             ${func} 
             echo "---> $func done..."
 
@@ -113,4 +129,5 @@ _main() {
 _main
 
 # continue stage2 with sudo priviledge.
+_set_mirror
 exec $INSTALLATION_PATH/stage2.sh
