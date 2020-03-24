@@ -46,6 +46,13 @@ tmux(){
     install_pack ${install["$pm"]}
 }
 
+fd-find() {
+    install['apt']='fd-find'
+    install['yum']='fd-find'
+    install_pack ${install["$pm"]}
+    echo "alias fd=fdfind" >> $HOME/.fzf.bash
+}
+
 qemu-kvm() {
     if cat /proc/cpuinfo | egrep "vmx|svm";then
         echo "Not Support Virtualization"
