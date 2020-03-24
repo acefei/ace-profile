@@ -50,7 +50,7 @@ fd-find() {
     install['apt']='fd-find'
     install['yum']='fd-find'
     install_pack ${install["$pm"]}
-    echo "alias fd=fdfind" >> $HOME/.fzf.bash
+    sed -i "/fd=fdfind/s/^#//" $HOME/.fzf.bash
 }
 
 qemu-kvm() {

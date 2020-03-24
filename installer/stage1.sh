@@ -7,8 +7,14 @@ source $INSTALLATION_PATH/provision.sh
 
 trap _teardown EXIT
 _teardown() {
-    echo
-    echo "Installation complete! To run 'bash' for the updated profile to take effect."
+    local exit_code=$?
+    if [ $exit_code -eq 0 ];then
+		echo
+		echo "Installation complete! To run 'bash' for the updated profile to take effect."
+    else
+        exit $exit_code
+    fi
+
 }
 
 config_git() {
@@ -83,7 +89,8 @@ setup_fzf() {
     tee -a ~/.fzf.bash >/dev/null <<-'EOF'
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
-if type fd > /dev/null; then
+#alias fd=fdfind
+if type fd > /dev/null 2>&1; then
 	export FZF_DEFAULT_COMMAND="fd --hidden --exclude .git $HOME"
 	export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} --type directory"
 else
