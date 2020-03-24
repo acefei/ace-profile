@@ -1,6 +1,6 @@
 #!/bin/bash
 
-repo_host=${1:github}
+repo_host=${1:-github}
 
 if [ ! -x $(command -v git) ]; then
     echo "please install git first."
@@ -12,7 +12,9 @@ source $HOME/.ace_profile_env
 
 git clone -q https://${repo_host}.com/acefei/ace-profile.git $PROFILE_PATH
 
-if [ "repo_host" != "github" ];then
-    export USE_GITEE=yes
+USE_GITEE=''
+if [ "$repo_host" != "github" ];then
+    USE_GITEE=yes
 fi
+export USE_GITEE
 $PROFILE_PATH/installer/stage1.sh

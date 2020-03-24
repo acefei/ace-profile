@@ -30,9 +30,6 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.We
 - [ShellCheck, a static analysis tool for shell scripts](https://github.com/koalaman/shellcheck)
   - [Vim wrapper for ShellCheck](https://github.com/itspriddle/vim-shellcheck)
 - [fzf is a general-purpose command-line fuzzy finder](https://github.com/junegunn/fzf)  
-  - add the alias `vigo` is used to open selected file from workspace
-  - add the alias `cdgo` is used to cd into selected directory from workspace
-  - the workspace is $HOME by default, you might update it in ~/.bashrc
 ```
     CTRL-T - Paste the selected files and directories onto the command line
         Set FZF_CTRL_T_COMMAND to override the default command

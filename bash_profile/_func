@@ -198,6 +198,11 @@ function dwget()
     wget -r -nH --cut-dirs=$cut_dirs --no-parent --reject="index.html*" $url
 }
 
+function mcd()
+{
+    mkdir -p $1 && cd $1
+}
+
 function del_git_br()
 {
     local br_name=$1

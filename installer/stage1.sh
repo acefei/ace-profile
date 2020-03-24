@@ -79,12 +79,17 @@ setup_fzf() {
 
     yes | ~/.fzf/install > /dev/null
 
-    tee ~/.fzfrc >/dev/null <<-'EOF'
-export FZF_FIND_PATH=$HOME
+
+    tee -a ~/.fzf.bash >/dev/null <<-'EOF'
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
-alias vigo='vi $(find $FZF_FIND_PATH -type f | fzf)'
-alias cdgo='cd $(find $FZF_FIND_PATH -type d | fzf)'
+if type fd > /dev/null; then
+	export FZF_DEFAULT_COMMAND="fd --hidden --exclude .git $HOME"
+	export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} --type directory"
+else
+	export FZF_DEFAULT_COMMAND="find $HOME"
+	export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} -type d"
+fi
 EOF
 }
 
