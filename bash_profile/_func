@@ -1,57 +1,26 @@
-# Backup file
-bk() { cp $1 ${1#.[0-9]*}.`date +%Y%m%d` ; }
-
 #-------------------------------------------------------------
 # File & strings related functions:
 #-------------------------------------------------------------
+backup_file() { 
+    cp $1{,.`date +%Y%m%d`} 
+}
+alias bk=backup_file
 
 # Find a file with a pattern in name:
-function ff() { find . -type f -iname '*'"$*"'*' -ls ; }
+ff() { find . -type f -iname '*'"$*"'*' -ls ; }
 
-# Find a file with pattern $1 in name and Execute $2 on it:
-function fe() { find . -type f -iname '*'"${1:-}"'*' \
--exec ${2:-file} {} \;  ; }
-
-#  Find a pattern in a set of files and highlight them:
-#+ (needs a recent version of egrep).
-function fs()
+find_string()
 {
-    OPTIND=1
-    local mycase=""
-    local usage="fs: find string in files.
-Usage: fs [-i] \"pattern\" [\"filename pattern\"] "
-    while getopts :it opt
-    do
-        case "$opt" in
-           i) mycase="-i " ;;
-           *) echo "$usage"; return ;;
-        esac
-    done
-    shift $(( $OPTIND - 1 ))
-    if [ "$#" -lt 1 ]; then
-        echo "$usage"
-        return;
+    local file_pattern=$2
+    if [ -z "$file_pattern" ];then
+        grep -nr "${1:?Usage: $FUNCNAME <keyword> [file_pattern]}" 
+    else
+        grep -nr "${1:?Usage: $FUNCNAME <keyword> [file_pattern]}" | grep "$file_pattern"
     fi
-    find . -type f -name "${2:-*}" -print0 | \
-xargs -0 grep --color=always -sn ${case} "$1" 2>&- 
-
 }
+alias fs=find_string
 
-
-function swap()
-{ # Swap 2 filenames around, if they exist (from Uzi's bashrc).
-    local TMPFILE=tmp.$$
-
-    [ $# -ne 2 ] && echo "swap: 2 arguments needed" && return 1
-    [ ! -e $1 ] && echo "swap: $1 does not exist" && return 1
-    [ ! -e $2 ] && echo "swap: $2 does not exist" && return 1
-
-    mv "$1" $TMPFILE
-    mv "$2" "$1"
-    mv $TMPFILE "$2"
-}
-
-function extract()      # Handy Extract Program
+extract()      # Handy Extract Program
 {
     if [ -f $1 ] ; then
         case $1 in
@@ -73,26 +42,24 @@ function extract()      # Handy Extract Program
     fi
 }
 
-
 # Creates an archive (*.tar.gz) from given directory.
-function maketar() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
+make_tar_gz() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
+alias mtz=make_tar_gz
 
 # Create a ZIP archive of a file or folder.
-function makezip() { zip -r "${1%%/}.zip" "$1" ; }
-
-# Make your directories and files access rights sane.
-function sanitize() { chmod -R u=rwX,g=rX,o= "$@" ;}
+make_zip() { zip -r "${1%%/}.zip" "$1" ; }
+alias mz=make_zip
 
 #-------------------------------------------------------------
 # Process/system related functions:
 #-------------------------------------------------------------
 
 
-function my_ps() { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
-function pp() { my_ps f | awk '!/awk/ && $0~var' var=${1:-".*"} ; }
+myps() { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
+pp() { myps f | awk '!/awk/ && $0~var' var=${1:-".*"} ; }
 
 
-function killps()   # kill by process name
+killps()   # kill by process name
 {
     local pid pname sig="-TERM"   # default signal
     if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
@@ -109,38 +76,13 @@ function killps()   # kill by process name
     done
 }
 
-function mydf()         # Pretty-print of 'df' output.
-{                       # Inspired by 'dfc' utility.
-    for fs ; do
 
-        if [ ! -d $fs ]
-        then
-          echo -e $fs" :No such file or directory" ; continue
-        fi
-
-        local info=( $(command df -P $fs | awk 'END{ print $2,$3,$5 }') )
-        local free=( $(command df -Pkh $fs | awk 'END{ print $4 }') )
-        local nbstars=$(( 20 * ${info[1]} / ${info[0]} ))
-        local out="["
-        for ((j=0;j<20;j++)); do
-            if [ ${j} -lt ${nbstars} ]; then
-               out=$out"*"
-            else
-               out=$out"-"
-            fi
-        done
-        out=${info[2]}" "$out"] ("$free" free on "$fs")"
-        echo -e $out
-    done
-}
-
-
-function my_ip() # Get IP adress on ethernet.
+myip() # Get IP adress on ethernet.
 {
     ip a s $(ip r | sed -n '/^default/s/.*\(dev [^ ]*\).*/\1/p') | sed -n '/inet/s/.*inet \([^\/]*\).*/\1/p'
 }
 
-function ii()   # Get current host related info.
+ii()   # Get current host related info.
 {
     echo -e "\nYou are logged on ${BRed}$HOST"
     echo -e "\n${BRed}Additionnal information:$NC " ; uname -a
@@ -159,7 +101,7 @@ function ii()   # Get current host related info.
 # Misc utilities:
 #-------------------------------------------------------------
 
-function repeat()       # Repeat n times command.
+repeat()  # Repeat n times command.
 {
     local i max
     max=$1; shift;
@@ -168,8 +110,7 @@ function repeat()       # Repeat n times command.
     done
 }
 
-
-function ask()          # See 'killps' for example of use.
+ask()  # See 'killps' for example of use.
 {
     echo -n "$@" '[y/n] ' ; read ans
     case "$ans" in
@@ -178,36 +119,86 @@ function ask()          # See 'killps' for example of use.
     esac
 }
 
-function corename()   # Get name of app that created a corefile.
+corename() # Get name of app that created a corefile.
 {
     for file ; do
         echo -n $file : ; gdb --core=$file --batch | head -1
     done
 }
 
-function enable_ssh_agent()
+enable_ssh_agent()
 {
     eval "$(ssh-agent)"
     ssh-add
 }
+alias esa=enable_ssh_agent
 
-function dwget()
+dwget()
 {
     local url=$1
     local cut_dirs=$(dirname $url | perl -ne 'print(split(/\//)-2)')
     wget -r -nH --cut-dirs=$cut_dirs --no-parent --reject="index.html*" $url
 }
 
-function mcd()
+mcd()
 {
     mkdir -p $1 && cd $1
 }
 
-function del_git_br()
+branch_create_time()
 {
-    local br_name=$1
-    git checkout master
-    git branch -D ${br_name}
-    echo '-------------'
-    git push -u origin :${br_name} 
+    local branch=${1:?Usage: $FUNCNAME <branch>}
+    git reflog show --date=format:'%Y%m%d' $branch | sed -n "/Created from/s/.*{\([^}]*\)}.*/\1/p"
 }
+
+remove_gone_branch() {
+    # any orphaned tracking branch will be marked "[gone]"
+    local branchs=$(git branch --list --format "%(if:equals=[gone])%(upstream:track)%(then)%(refname:short)%(end)") 
+    local branch
+    for branch in $branchs; do
+        [ -n "$branch" ] && git branch -d $branch
+    done
+}
+
+my_branchs() {
+	local all_branch_regex='\K.*'
+	local remote_branch_regex='origin/\K(?!HEAD).*'
+	#local regex=$all_branch_regex
+	local regex=$remote_branch_regex
+	local branchs=$(git for-each-ref --format='%(authorname) %(refname:short)' --sort=committerdate | grep -Po  "$(git config user.name) $regex")
+
+	updated_in_a_period() {
+        local branch=$1
+        if ! echo $branch | grep -qP "^origin";then
+           branch=origin/$branch
+        fi
+		test -n "$(git log -1 --since '4 month ago' $branch)"
+	}
+
+    local branch
+	for branch in $branchs; do
+		if updated_in_a_period $branch;then
+			# echo "SKIP: $branch was updated in a period"
+			continue
+		fi
+		echo $branch
+	done
+}
+
+prune_git_branchs() (
+    git checkout master &&  git fetch -p && remove_gone_branch
+
+    local branchs=$1
+    [ -z "${branchs}" ] && branchs=$(my_branchs)
+    ECHO=''
+    local branch
+    for branch in $branchs; do
+        {
+            $ECHO git branch -D ${branch} ||:
+            $ECHO git push origin --delete ${branch} ||:
+            echo "---> Success to delete ${branch}"
+        }&
+    done
+    wait
+)
+alias pgb=prune_git_branchs

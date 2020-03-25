@@ -1,0 +1,9 @@
+git_checkout() {
+  local branch_list branch 
+
+  # list remote branch in descending order
+  branch_list=$(git for-each-ref --format='%(refname:short)' --sort=-committerdate | grep -Po "origin/\K.*")
+  branch=$(fzf --prompt="checkout " --expect=ctrl-x <<< "$branch_list")
+  git checkout "$branch" || return 1
+}
+alias fzgc=git_checkout
