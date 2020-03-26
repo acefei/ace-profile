@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+for path in $(find "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" -name "_*")
+do
+    source $path
+done

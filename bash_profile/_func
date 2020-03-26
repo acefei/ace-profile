@@ -186,12 +186,15 @@ my_branchs() {
 }
 
 prune_git_branchs() (
-    git checkout master &&  git fetch -p && remove_gone_branch
+    local branchs branch
 
-    local branchs=$1
-    [ -z "${branchs}" ] && branchs=$(my_branchs)
+    branchs=$1 
+    if [ -z "${branchs}" ] ;then
+        git checkout master &&  git fetch -p && remove_gone_branch
+        branchs=$(my_branchs)
+    fi
+
     ECHO=''
-    local branch
     for branch in $branchs; do
         {
             $ECHO git branch -D ${branch} ||:

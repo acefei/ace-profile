@@ -53,10 +53,7 @@ export EDITOR=vi
 
 EOF
 
-    local pf
-    for pf in $bash_profile/_* ;do
-        echo "source $pf" >> $profile
-    done
+    echo "source $bash_profile/dynamic_source_all" >> $profile
 
     [ -e $bashrc ] && mv ${bashrc}{,.backup}
     ln -sf $profile $bashrc
@@ -94,7 +91,7 @@ if type fd > /dev/null 2>&1; then
 	export FZF_DEFAULT_COMMAND="fd --hidden --exclude .git $HOME"
 	export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} --type directory"
 else
-	export FZF_DEFAULT_COMMAND="find $HOME"
+	export FZF_DEFAULT_COMMAND="find $HOME ! -path '*/.git/*'"
 	export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} -type d"
 fi
 EOF
