@@ -205,3 +205,10 @@ prune_git_branchs() (
     wait
 )
 alias pgb=prune_git_branchs
+
+git_remote_cherry_pick() {
+    local remote_url=$1
+    local commitish=$2
+    git fetch $remote_url $commitish && git cherry-pick FETCH_HEAD
+}
+alias grcp=git_remote_cherry_pick
