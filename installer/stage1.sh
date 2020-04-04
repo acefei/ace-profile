@@ -69,7 +69,7 @@ config_utility() {
 
 config_ssh() {
     [ -d $HOME/.ssh ] || mkdir $HOME/.ssh
-    ln -sf $config/ssh_config $sshconfig
+    cp -f $config/ssh_config $sshconfig
 
     # fix Bad owner or permissions on XXX
     chmod 600 $sshconfig

@@ -1,6 +1,11 @@
+Host *github*
+    ForwardX11 no
+
 Host *
     ForwardAgent yes
+    ForwardX11 yes
+    ForwardX11Trusted yes
+    TCPKeepAlive yes
     KexAlgorithms +diffie-hellman-group1-sha1
     HostKeyAlgorithms +ssh-dss
     Ciphers +3des-cbc
-

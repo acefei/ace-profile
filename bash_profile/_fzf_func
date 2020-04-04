@@ -7,4 +7,4 @@ git_checkout() {
   branch=$(fzf --prompt="checkout " --expect=ctrl-x <<< "$branch_list" | xargs )
   git checkout "$branch" || return 1
 }
-alias fzgc=git_checkout
+alias fzco=git_checkout
