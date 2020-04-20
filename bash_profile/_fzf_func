@@ -2,9 +2,9 @@ git_checkout() {
   local branch_list branch 
 
   # list remote branch in descending order
-  branch_list=$(git for-each-ref --format='%(refname:short)' --sort=-committerdate | grep -Po "origin/\K.*")
+  branch_list=$(git for-each-ref --format='%(align:40,left)%(refname:short)%(end) %(subject)' --sort=-committerdate | grep -Po "origin/\K.*")
   # xargs for trim the space of the result
   branch=$(fzf --prompt="checkout " --expect=ctrl-x <<< "$branch_list" | xargs )
-  git checkout "$branch" || return 1
+  git checkout "${branch%% *}" || return 1
 }
 alias fzco=git_checkout
