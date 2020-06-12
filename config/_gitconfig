@@ -27,9 +27,10 @@
     dcf = diff --name-only --cached
     dp = diff HEAD^
     dpf = diff --name-only HEAD^
-    caa = commit -a --amend
+    caa = commit -a --amend --no-edit
     pf = push -f
-    rtm = !git fetch origin && git rebase origin/master
+    pr = pull --rebase
+    ri = !git rebase -i $(git merge-base --fork-point origin/HEAD HEAD)
     rc = !git add -A && git rebase --continue
 
 # Get the current branch name
