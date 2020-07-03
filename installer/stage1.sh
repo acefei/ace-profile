@@ -88,7 +88,7 @@ export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
 #alias fd=fdfind
 if type fd > /dev/null 2>&1; then
-	export FZF_DEFAULT_COMMAND="fd --hidden --exclude .git $HOME"
+	export FZF_DEFAULT_COMMAND="fd --hidden --exclude .git . $HOME"
 	export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} --type directory"
 else
 	export FZF_DEFAULT_COMMAND="find $HOME ! -path '*/.git/*'"
