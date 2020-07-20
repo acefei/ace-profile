@@ -22,7 +22,7 @@
     br = branch
     brv = branch -vv
     st = status
-    rv = remote -vv
+    rmv = remote -vv
     dc = diff --cached
     dcf = diff --name-only --cached
     dp = diff HEAD^
@@ -30,9 +30,9 @@
     caa = commit -a --amend --no-edit
     pf = push --force-with-lease
     pr = pull --rebase
-    rm = !git fetch --prune && git rebase origin/master
-    ri = !git rebase -i $(git merge-base --fork-point origin/HEAD HEAD)
-    rc = !git add -A && git rebase --continue
+    rbm = !git fetch --prune && git rebase origin/master
+    rbi = !git rebase -i $(git merge-base --fork-point origin/HEAD HEAD)
+    rbc = !git add -A && git rebase --continue
 
 # Get the current branch name
 branch-name = "!git rev-parse --abbrev-ref HEAD"
