@@ -28,8 +28,9 @@
     dp = diff HEAD^
     dpf = diff --name-only HEAD^
     caa = commit -a --amend --no-edit
-    pf = push -f
+    pf = push --force-with-lease
     pr = pull --rebase
+    rm = !git fetch --prune && git rebase origin/master
     ri = !git rebase -i $(git merge-base --fork-point origin/HEAD HEAD)
     rc = !git add -A && git rebase --continue
 
