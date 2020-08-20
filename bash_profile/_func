@@ -156,7 +156,7 @@ remove_gone_branch() {
     local branchs=$(git branch --list --format "%(if:equals=[gone])%(upstream:track)%(then)%(refname:short)%(end)") 
     local branch
     for branch in $branchs; do
-        [ -n "$branch" ] && git branch -d $branch
+        [ -n "$branch" ] && git branch -D $branch
     done
 }
 
@@ -189,8 +189,10 @@ prune_git_branchs() (
     local branchs branch
 
     branchs=$1 
+    git checkout master
+
     if [ -z "${branchs}" ] ;then
-        git checkout master &&  git fetch -p && remove_gone_branch
+        git fetch -p && remove_gone_branch 
         branchs=$(my_branchs)
     fi
 
