@@ -16,7 +16,7 @@
 
 [alias]
     up = !sh -c 'git pull --rebase && git push'
-    lp = log --graph --pretty=format:'%C(yellow)%d%Creset %C(cyan)%h%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=short --all
+    lo = log --oneline -5
     co = checkout
     cob = checkout -b
     br = branch
