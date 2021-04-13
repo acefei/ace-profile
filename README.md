@@ -60,9 +60,10 @@ Now we use Centos 8 as devbox ([How to create it](https://github.com/acefei/ace-
     
 
 ## Reference
-> [bash cheatsheet](https://github.com/rstacruz/cheatsheets/blob/master/bash.md)
-> [.bashrc and .bash_profile](http://tldp.org/LDP/abs/html/sample-bashrc.html)<br>
-> [junegunn/dotfiles](https://github.com/junegunn/dotfiles)<br>
-> [Vim8 package](https://vi.stackexchange.com/a/11733)<br>
-> [Record and share your terminal sessions](https://asciinema.org/)<br>
-> [hotkey for bash-support.vim](https://lug.fh-swf.de/vim/vim-bash/bash-hotkeys.pdf)
+- [bash cheatsheet](https://github.com/rstacruz/cheatsheets/blob/master/bash.md)
+- [.bashrc and .bash_profile](http://tldp.org/LDP/abs/html/sample-bashrc.html)
+- [junegunn/dotfiles](https://github.com/junegunn/dotfiles)
+- [Vim8 package](https://vi.stackexchange.com/a/11733)
+- [Record and share your terminal sessions](https://asciinema.org/)
+- [hotkey for bash-support.vim](https://lug.fh-swf.de/vim/vim-bash/bash-hotkeys.pdf)
+- [DNS Not Resolving under Network [CentOS8]](https://github.com/docker/for-linux/issues/957)
