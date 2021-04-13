@@ -12,6 +12,10 @@ PLUGS['shell']="\
                 itspriddle/vim-shellcheck \
                 "
 
+PLUGS['groovy']="\
+                thecodesmith/vim-groovy \
+                "
+
 PLUGS['generic']="\
                   w0rp/ale \
                   ctrlpvim/ctrlp.vim \
