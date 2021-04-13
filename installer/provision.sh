@@ -92,13 +92,17 @@ curl_install() {
 }
 
 download() {
-    local location=$1
-    local url=$2
+    local url=$1
+    local location=${2:-}
+    local opts=''
 
     if [ -x "$(command -v curl)" ];then
-        curl -sL -o $location $url
+        opts='-O'
+        [ -n "$location" ] && opts="-o $location"
+        curl -sL $opts $url
     elif [ -x "$(command -v wget)" ]; then
-        wget -q -O $location $url
+        [ -n "$location" ] && opts="-O $location"
+        wget -q $opts $url
     else
         echo "Please install curl/wget firstly."
         exit 1
@@ -115,7 +119,13 @@ sudo_check() {
 }
 
 command_exists() {
-	command -v "$@" > /dev/null 2>&1
+    command -v "$@" > /dev/null 2>&1
+}
+
+work_in_temp() {
+    d=$(mktemp -d)
+    cd $d
+    trap 'rm -rf $d' EXIT
 }
 
 install_functions() {

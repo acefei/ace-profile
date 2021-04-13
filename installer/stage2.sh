@@ -47,67 +47,11 @@ tmux(){
 }
 
 fd-find() {
-    install['apt']='fd-find'
-    install['yum']='fd-find'
-    install_pack ${install["$pm"]}
-    sed -i "/fd=fdfind/s/^#//" $HOME/.fzf.bash
-}
-
-qemu-kvm() {
-    if cat /proc/cpuinfo | egrep "vmx|svm";then
-        echo "Not Support Virtualization"
-        return
-    fi
-
-    install['apt']='bridge-utils virtinst'
-    install['yum']=''
-    install_pack ${install["$pm"]}
-}
-
-shellcheck() {
-    install['apt']='shellcheck'
-    install['yum']='ShellCheck'
-    install_pack ${install["$pm"]}
-}
-
-nodejs-lts() {
-    local nodesource_list=/etc/apt/sources.list.d/nodesource.list
-    if [ ! -f "$nodesource_list" ];then
-        if [ "$pm" == "yum" ]; then
-            curl -sL https://rpm.nodesource.com/setup_12.x | sudo -E bash -
-        elif [ "$pm" == "apt" ]; then
-            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-            [ -n "$SET_MIRROR" ] && sudo perl -pi -e "s#https://deb.nodesource.com/#http://mirrors.ustc.edu.cn/nodesource/deb/#g" $nodesource_list
-        fi
-    fi
-
     install['apt']='nodejs'
     install['yum']='nodejs'
     install_pack ${install["$pm"]}
+    $gosu npm install -g fd-find --unsafe
 }
-
-vscode() {
-    # Pre-install for vscode common issue 
-    # https://code.visualstudio.com/docs/setup/linux#_common-questions
-    install['apt']="gvfs-bin"
-    install['yum']=""
-    install_pack ${install["$pm"]}
-    
-    echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
-
-    # VSCODE installation
-    if [ "$pm" == "yum" ]; then
-        sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-        sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
-    elif [ "$pm" == "apt" ]; then
-        wget -O $setup/vscode.deb https://go.microsoft.com/fwlink/?LinkID=760868
-    fi
-
-    install['apt']="$setup/vscode.deb"
-    install['yum']="code"
-    install_pack ${install["$pm"]}
-}
-
 
 _main() {
     echo "Start installing checked options..."

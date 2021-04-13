@@ -22,8 +22,8 @@ config_git() {
     git_ver=$(git --version | awk '{print $3}')
     git_url=https://raw.githubusercontent.com/git/git
     [ -n "$USE_GITEE" ] && git_url=https://gitee.com/mirrorgit/git/raw
-    download $HOME/.git-completion.bash $git_url/v$git_ver/contrib/completion/git-completion.bash 
-    download $HOME/.git-prompt.sh $git_url/v$git_ver/contrib/completion/git-prompt.sh 
+    download $git_url/v$git_ver/contrib/completion/git-completion.bash $HOME/.git-completion.bash
+    download $git_url/v$git_ver/contrib/completion/git-prompt.sh $HOME/.git-prompt.sh
 
     [ -e $gitconfig ] && mv ${gitconfig}{,.backup}
     ln -sf $config/_gitconfig $gitconfig
@@ -86,8 +86,7 @@ setup_fzf() {
     tee -a ~/.fzf.bash >/dev/null <<-'EOF'
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
-#alias fd=fdfind
-if type fd > /dev/null 2>&1; then
+if command_exists fd; then
 	export FZF_DEFAULT_COMMAND="fd --hidden --exclude .git . $HOME"
 	export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} --type directory"
 else
@@ -96,6 +95,13 @@ else
 fi
 EOF
 }
+
+setup_shellcheck() (
+    work_in_temp
+    download https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.$(arch).tar.xz
+    tar xvf shellcheck*.tar.xz
+    mv shellcheck*/shellcheck $local_bin
+)
 
 setup_fpp() {
     git_url=https://github.com/facebook/PathPicker.git 
