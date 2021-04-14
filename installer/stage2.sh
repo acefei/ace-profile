@@ -26,7 +26,7 @@ current_dir=$(cd `dirname ${BASH_SOURCE[0]}`; pwd)
 source $current_dir/provision.sh
 
 build-essential() {
-    install['yum']="epel-release gcc automake autoconf libtool make git-lfs"
+    install['yum']="epel-release gcc nfs-utils automake autoconf libtool make git-lfs"
     install['apt']="build-essential automake nfs-common git-lfs"
     install_pack ${install["$pm"]}
 }
