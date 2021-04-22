@@ -6,6 +6,13 @@ backup_file() {
 }
 alias bk=backup_file
 
+move_to_backup() { 
+    local backup_path=$HOME/backup
+    mkdir -p $backup_path
+    mv $* $backup_path
+}
+alias mtb=move_to_backup
+
 # Find a file with a pattern in name:
 ff() { find . -type f -iname '*'"$*"'*' -ls ; }
 
