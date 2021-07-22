@@ -87,6 +87,11 @@
         :nmap <c-s> :w<CR>
         :imap <c-s> <Esc>:w<CR>a
 
+        " Add quote around the word
+        :nnoremap <Leader>q" ciw""<Esc>P
+        :nnoremap <Leader>q' ciw''<Esc>P
+        :nnoremap <Leader>qd daW"=substitute(@@,"'\\\|\"","","g")<CR>P"'")"'"
+
     " }
     " Misc {
         " Return to last edit position when opening files (You want this!)
