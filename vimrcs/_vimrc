@@ -61,6 +61,18 @@
         " Super useful when editing files in the same directory
         map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
     " }
+    " VIMDIFF {
+	if &diff
+		map gs :call IwhiteToggle()<CR>
+		function! IwhiteToggle()
+			if &diffopt =~ 'iwhite'
+				set diffopt-=iwhite
+			else
+				set diffopt+=iwhite
+			endif
+		endfunction
+	endif 
+    " }
 
     " Key Mappings {
         " -- git command on current file
