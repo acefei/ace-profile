@@ -4,10 +4,6 @@
         filetype plugin on
         filetype indent on
         
-        " groovy.vim support
-        "au BufNewFile,BufRead *.groovy setf groovy
-        "au BufNewFile,BufRead Jenkinsfile setf groovy
-
         " syntax highlight on
         syntax on
         colorscheme desert
@@ -48,6 +44,11 @@
         set splitbelow                  " Puts new split windows to the bottom of the current
         "set matchpairs+=<:>             " Match, to be used with %
         set pastetoggle=<F12>           " pastetoggle (sane indentation on pastes)
+
+        " groovy.vim support
+        au BufNewFile,BufRead *.groovy setf groovy
+        au BufNewFile,BufRead Jenkinsfile setf groovy
+
     " }
     
     " Tab {
@@ -103,6 +104,9 @@
         :nnoremap <Leader>q" ciw""<Esc>P
         :nnoremap <Leader>q' ciw''<Esc>P
         :nnoremap <Leader>qd daW"=substitute(@@,"'\\\|\"","","g")<CR>P"'")"'"
+
+        " Format groovy indent (just like javascript indent)
+        map <leader>gf :setf javascript<cr>gg=G:setf groovy<cr>
 
     " }
     " Misc {
