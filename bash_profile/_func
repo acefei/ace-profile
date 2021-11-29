@@ -221,3 +221,13 @@ git_remote_cherry_pick() {
     git fetch $remote_url $commitish && git cherry-pick FETCH_HEAD
 }
 alias grcp=git_remote_cherry_pick
+
+prune_docker_image() {
+    # clean none images
+    docker ps -a | grep "Exited" | awk '{print $1}' | xargs docker stop
+    docker ps -a | grep "Exited" | awk '{print $1}' | xargs docker rm
+    docker images| grep none | awk '{print $3 }' | xargs docker rmi
+    # clean unused images
+    docker image prune -a
+}
+alias pdi=prune_docker_image
