@@ -10,6 +10,8 @@ alias j='jobs -l'
 alias ..='cd ..'
 alias c='clear'
 alias uv='vim +PlugInstall +qa'
+alias k9sd='docker run --rm -it -v $KUBECONFIG:/root/.kube/config quay.io/derailed/k9s'
+alias k9sdb='docker run --rm -it -v $KUBECONFIG:/root/.kube/config --entrypoint=/bin/sh quay.io/derailed/k9s'
 
 # Pretty-print of some PATH variables:
 alias path='echo -e ${PATH//:/\\n}'
