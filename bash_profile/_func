@@ -192,6 +192,22 @@ my_branchs() {
 	done
 }
 
+prune_git_tags() (
+    local tags tag
+    tags=$1
+
+    ECHO=''
+    for tag in $tags; do
+        {
+            $ECHO git tag -d ${tag} ||:
+            $ECHO git push origin --delete ${tag} ||:
+            echo "---> Success to delete ${tag}"
+        }&
+    done
+    wait
+)
+alias pgt=prune_git_tags
+
 prune_git_branchs() (
     local branchs branch
 
