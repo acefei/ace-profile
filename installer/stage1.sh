@@ -42,7 +42,7 @@ export HISTSIZE=100
 export HISTFILESIZE=100
 
 # local bin
-export PATH=$PATH:~/.local/bin
+export PATH=$PATH:~/.local/bin:~/.local/miniconda/bin
 
 # default EDITOR
 export EDITOR=vi
@@ -95,6 +95,12 @@ else
 fi
 EOF
 }
+
+setup_miniconda() (
+    work_in_temp
+    download https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/.localg
+)
 
 setup_shellcheck() (
     work_in_temp
