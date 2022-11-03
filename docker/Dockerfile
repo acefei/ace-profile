@@ -7,5 +7,5 @@ RUN apt-get update -y && apt-get install -y curl && \
     curl -sSL https://webinstall.dev/k9s | bash && cp -L /root/.local/bin/k9s /usr/local/bin/ && \
     curl -sSL https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -o /usr/local/bin/kubectl
 
-FROM ubuntu:22.04 as devops-box
+FROM ubuntu:22.04 as build-devops-box
 COPY --from=base --chmod=755 /usr/local/bin/. /usr/local/bin
