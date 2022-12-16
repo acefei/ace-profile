@@ -132,6 +132,11 @@ install_functions() {
     grep -Po "^[^_][\w-]+(?=\(\))" $0
 }
 
+latest_in_github_release() {
+    local latest_version=$(basename `curl -w "%{redirect_url}" -s $1`)
+    echo "$latest_version"
+}
+
 ask_exit() {
     read -rp "[?] Re-login for the profile to take effect (y/n)? " answer
 	case ${answer:0:1} in

@@ -99,14 +99,29 @@ EOF
 setup_miniconda() (
     work_in_temp
     download https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-    bash Miniconda3-latest-Linux-x86_64.sh -b -p ~/.localg
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p $local_bin
 )
 
 setup_shellcheck() (
     work_in_temp
     download https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.$(arch).tar.xz
     tar xvf shellcheck*.tar.xz
-    mv shellcheck*/shellcheck $local_bin
+    install shellcheck*/shellcheck $local_bin
+)
+
+setup_sops() (
+    work_in_temp
+    ver=$(latest_in_github_release "https://github.com/mozilla/sops/releases/latest")
+    download https://github.com/mozilla/sops/releases/download/$ver/sops-$ver.linux.amd64
+    install sops-* $local_bin/sops
+)
+
+setup_age() (
+    work_in_temp
+    ver=$(latest_in_github_release "https://github.com/FiloSottile/age/releases/latest")
+    download https://github.com/FiloSottile/age/releases/download/$ver/age-$ver-linux-amd64.tar.gz
+    tar zxvf age*.tar.gz
+    install -D age/age* $local_bin
 )
 
 setup_fpp() {
@@ -147,8 +162,12 @@ _main() {
 }
 
 ##################### MAIN ##########################
-_main
-
-# continue stage2 with sudo priviledge.
-_set_mirror
-exec $INSTALLATION_PATH/stage2.sh
+if [ -z "${1:-}" ];then
+    _main
+    # continue stage2 with sudo priviledge.
+    _set_mirror
+    exec $INSTALLATION_PATH/stage2.sh
+else
+    # test specific setup method.
+    eval "$1"
+fi
