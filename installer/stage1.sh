@@ -78,7 +78,7 @@ config_ssh() {
 setup_fzf() {
     git_url=https://github.com/junegunn/fzf.git
     [ -n "$USE_GITEE" ] && git_url=https://gitee.com/open-resource/fzf.git
-    $git_clone $git_url ~/.fzf 
+    $git_clone $git_url ~/.fzf
 
     yes | ~/.fzf/install > /dev/null
 
@@ -86,7 +86,7 @@ setup_fzf() {
     tee -a ~/.fzf.bash >/dev/null <<-'EOF'
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
-if command_exists fd; then
+if command -v fd > /dev/null ; then
 	export FZF_DEFAULT_COMMAND="fd --hidden --exclude .git . $HOME"
 	export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} --type directory"
 else
@@ -125,7 +125,7 @@ setup_age() (
 )
 
 setup_fpp() {
-    git_url=https://github.com/facebook/PathPicker.git 
+    git_url=https://github.com/facebook/PathPicker.git
     [ -n "$USE_GITEE" ] && git_url=https://gitee.com/mirrors/PathPicker.git
     $git_clone $git_url ~/.PathPicker
     ln -sf ~/.PathPicker/fpp $local_bin/fpp
@@ -153,7 +153,7 @@ _main() {
     for func in $func_list; do
         {
             echo "---> start $func..."
-            ${func} 
+            ${func}
             echo "---> $func done..."
 
         } &
