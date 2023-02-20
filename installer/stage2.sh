@@ -27,7 +27,17 @@ source $current_dir/provision.sh
 
 build-essential() {
     install['yum']="epel-release gcc nfs-utils automake autoconf libtool make git-lfs"
-    install['apt']="build-essential automake nfs-common git-lfs"
+    install['apt']="build-essential automake nfs-common git-lfs \
+        libbz2-dev \
+        libc6-dev \
+        libexpat1-dev \
+        libffi-dev \
+        libgdbm-dev \
+        liblzma-dev \
+        libncursesw5-dev \
+        libreadline-dev \
+        libsqlite3-dev \
+        libssl-dev"
     install_pack ${install["$pm"]}
 }
 

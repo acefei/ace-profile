@@ -96,10 +96,12 @@ fi
 EOF
 }
 
-setup_miniconda() (
+setup_pyenv() (
     work_in_temp
-    download https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-    bash Miniconda3-latest-Linux-x86_64.sh -b -p $local_bin
+    curl https://pyenv.run | bash
+    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> $bashrc
+    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> $bashrc
+    echo 'eval "$(pyenv init -)"' >> $bashrc
 )
 
 setup_shellcheck() (
