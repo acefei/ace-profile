@@ -1,0 +1,28 @@
+package_update: true
+package_upgrade: true
+
+packages:
+- python3-pip
+- jq
+
+write_files:
+  - path: /etc/systemd/system/jupyterlab.service
+    content: |
+      [Unit]
+      Description=JupyterLab
+      After=syslog.target network.target
+
+      [Service]
+      User=root
+      Environment="PATH=/usr/local/bin:/usr/bin:/bin:/sbin"
+      ExecStart=/usr/local/bin/jupyter lab --ip 0.0.0.0 --port 8888 --no-browser --allow-root
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - |
+    pip3 install jupyterlab
+    systemctl daemon-reload
+    systemctl enable jupyterlab.service
+    systemctl start jupyterlab.service
