@@ -16,6 +16,10 @@ PLUGS['groovy']="\
                 thecodesmith/vim-groovy \
                 "
 
+PLUGS['ocaml']="\
+                ocaml/vim-ocaml \
+                "
+
 PLUGS['generic']="\
                   w0rp/ale \
                   ctrlpvim/ctrlp.vim \

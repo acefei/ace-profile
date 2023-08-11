@@ -6,7 +6,7 @@
 
 [user]
     name = Fei Su
-    email = fei.su@citrix.com
+    email = fei.su@cloud.com
 
 [credential]
     helper = store
@@ -27,7 +27,8 @@
     dcf = diff --name-only --cached
     dp = diff HEAD^
     dpf = diff --name-only HEAD^
-    caa = commit -a --amend --no-edit
+    cm = commit -a -s -m
+    caa = commit -a -s --amend --no-edit
     pf = push --force-with-lease
     pr = pull --rebase
     rbm = !git fetch --prune && git rebase origin/master
