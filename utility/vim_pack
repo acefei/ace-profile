@@ -4,35 +4,41 @@
 # PLUGS is an associative array of which subscript indicates package group and value indicates plugin names.
 declare -A PLUGS
 
-#PLUGS['python']="\
-#                google/yapf\
-#                "
-
+#====================== Start Plugin List =========================
 PLUGS['shell']="\
-                itspriddle/vim-shellcheck \
-                "
+     itspriddle/vim-shellcheck \
+     "
 
 PLUGS['groovy']="\
-                thecodesmith/vim-groovy \
-                "
+     thecodesmith/vim-groovy \
+     "
 
 PLUGS['ocaml']="\
-                ocaml/vim-ocaml \
-                "
+     ocaml/vim-ocaml \
+     "
+
+PLUGS['git']="\
+     tpope/vim-fugitive \
+     mhinz/vim-signify \
+     "
+
+PLUGS['code-snippet']="\
+     SirVer/ultisnips \
+     acefei/vim-snippets\
+     "
 
 PLUGS['generic']="\
-                  w0rp/ale \
-                  ctrlpvim/ctrlp.vim \
-                  majutsushi/tagbar \
-                  scrooloose/nerdtree \
-                  scrooloose/nerdcommenter \
-                  SirVer/ultisnips \
-                  acefei/vim-snippets\
-                  jiangmiao/auto-pairs \
-                  maralla/completor.vim \
-                  mhinz/vim-signify \
-                  kshenoy/vim-signature \
-                  "
+     w0rp/ale \
+     ctrlpvim/ctrlp.vim \
+     majutsushi/tagbar \
+     scrooloose/nerdtree \
+     scrooloose/nerdcommenter \
+     jiangmiao/auto-pairs \
+     maralla/completor.vim \
+     kshenoy/vim-signature \
+     "
+#==================== End Plugin List =========================
+
 
 # Create new folder in ~/.vim/pack that contains a start folder and cd into it.
 #
@@ -71,8 +77,9 @@ package() {
   fi
 }
 
+# Install vim plugin in parallel
 install_plugins() {
-    for key in ${!PLUGS[*]} 
+    for key in ${!PLUGS[*]}
     do
         {
 			set_group $key
@@ -87,9 +94,10 @@ install_plugins() {
     wait
 }
 
-tear_down() {
+finish() {
     # remove the plugins unused
     cd $HOME/.vim/pack
+    # given above installation is running in parallel, so it should be finish in 5 min, all of dir touched out of 5 min should be removed.
     old_plugs=$(find ./*/*/*/.git -prune -mmin +5 -print | sed "s/\/.git//")
     if [ -n "$old_plugs" ]; then
         echo
@@ -102,8 +110,7 @@ tear_down() {
     INSTALLATION_PATH=$PROFILE_PATH/installer
     source $INSTALLATION_PATH/provision.sh
     ln -sf $vimrcs/_vimrc $vimrc
-
 }
+trap finish EXIT
 
 install_plugins
-tear_down
