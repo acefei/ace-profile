@@ -29,8 +29,7 @@ PLUGS['code-snippet']="\
 
 PLUGS['generic']="\
      w0rp/ale \
-     ctrlpvim/ctrlp.vim \
-     majutsushi/tagbar \
+     Yggdroot/LeaderF \
      scrooloose/nerdtree \
      scrooloose/nerdcommenter \
      jiangmiao/auto-pairs \
@@ -71,7 +70,6 @@ package() {
     result=$(git pull --force)
     echo "$expected_repo: $result"
   else
-    echo "$expected_repo: Installing..."
     git clone -q "$repo_url" --depth 1
     echo "$expected_repo: Done..."
   fi

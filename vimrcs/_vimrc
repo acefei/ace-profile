@@ -28,7 +28,6 @@
     " }
 
     " Formatting {
-
         set nowrap                      " Do not wrap long lines
         set autoindent                  " Indent at the same level of the previous line
         " C++, Groovy, Java, JavaScript, Perl, Python and Tcl indent. 
@@ -41,13 +40,11 @@
         set nojoinspaces                " Prevents inserting two spaces after punctuation on a join (J)
         set splitright                  " Puts new vsplit windows to the right of the current
         set splitbelow                  " Puts new split windows to the bottom of the current
-        "set matchpairs+=<:>             " Match, to be used with %
         set pastetoggle=<F12>           " pastetoggle (sane indentation on pastes)
 
         " groovy.vim support
         au BufNewFile,BufRead *.groovy setf groovy
         au BufNewFile,BufRead Jenkinsfile setf groovy
-
     " }
     
     " Tab {
@@ -61,6 +58,7 @@
         " Super useful when editing files in the same directory
         map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
     " }
+    
     " VIMDIFF {
 	if &diff
 		map gs :call IwhiteToggle()<CR>
@@ -75,18 +73,6 @@
     " }
 
     " Key Mappings {
-        " -- git command on current file
-		fun! GitCommand(command)
-		  silent! !clear
-		  exec "!git " . a:command . " %"
-		endfun
-		" -- git diff for current file
-		map <leader>d :call GitCommand("diff") <CR>
-		" -- git log for current file
-		map <leader>l :call GitCommand("log -p") <CR>
-		" -- git blame for current file
-		map <leader>b :call GitCommand("blame") <CR>
-
         " Wrapped lines goes down/up to next row, rather than next line in file.
         noremap j gj
         noremap k gk
@@ -119,7 +105,6 @@
     " }
 " }
 
-" using ace-profile/utility/vim_pack to install vim plugin for vim8
 " Plugin Settings {
 	" Ale {
 		let g:ale_linters = {}
@@ -139,61 +124,12 @@
 		" let g:ale_lint_on_save = 1
 	" }
     
-    " Completor {
-      " pip install jedi first
-    " }
-
     " Nerdcommenter {
     "   Ctrl + / to to toggle comments like in vscode
         map <C-_> <plug>NERDCommenterToggle  
     " }
     
-    " NerdTree {
-       " toggle nerdtree display
-       map <F3> :NERDTreeToggle<CR>
-       " open nerdtree with the current file selected
-       nmap ,t :NERDTreeFind<CR>
-       " don;t show these file types
-       let NERDTreeIgnore = ['\.pyc$', '\.pyo$']
-    " }
-
-    " Ctrlp {
-        " tags (symbols) in current file finder mapping
-        nmap ,g :CtrlPBufTag<CR>
-        " tags (symbols) in all files finder mapping
-        nmap ,G :CtrlPBufTagAll<CR>
-        " general code finder in all files mapping
-        nmap ,f :CtrlPLine<CR>
-        " recent files finder mapping
-        nmap ,m :CtrlPMRUFiles<CR>
-        " commands finder mapping
-        nmap ,c :CtrlPCmdPalette<CR>
-        " to be able to call CtrlP with default search text
-        function! CtrlPWithSearchText(search_text, ctrlp_command_end)
-            execute ':CtrlP' . a:ctrlp_command_end
-            call feedkeys(a:search_text)
-        endfunction
-        " same as previous mappings, but calling with current word as default text
-        nmap ,wg :call CtrlPWithSearchText(expand('<cword>'), 'BufTag')<CR>
-        nmap ,wG :call CtrlPWithSearchText(expand('<cword>'), 'BufTagAll')<CR>
-        nmap ,wf :call CtrlPWithSearchText(expand('<cword>'), 'Line')<CR>
-        nmap ,we :call CtrlPWithSearchText(expand('<cword>'), '')<CR>
-        nmap ,pe :call CtrlPWithSearchText(expand('<cfile>'), '')<CR>
-        nmap ,wm :call CtrlPWithSearchText(expand('<cword>'), 'MRUFiles')<CR>
-        nmap ,wc :call CtrlPWithSearchText(expand('<cword>'), 'CmdPalette')<CR>
-        " don't change working directory
-        let g:ctrlp_working_path_mode = 0
-        " ignore these files and folders on file finder
-        let g:ctrlp_custom_ignore = {
-          \ 'dir':  '\v[\/](\.git|\.hg|\.svn|node_modules)$',
-          \ 'file': '\.pyc$\|\.pyo$',
-          \ } 
-    " }
-    
-    " Tagbar {
-         " toggle tagbar display
-         map <F4> :TagbarToggle<CR>
-         " autofocus on tagbar open
-         let g:tagbar_autofocus = 1
+    " LeaderF {
+        nnoremap <silent> <C-p> :Leaderf rg<CR>
     " }
 " }

@@ -9,8 +9,8 @@ trap _teardown EXIT
 _teardown() {
     local exit_code=$?
     if [ $exit_code -eq 0 ];then
-		echo
-		echo "Installation complete! To run 'bash' for the updated profile to take effect."
+        echo
+        echo "Installation complete! To run 'bash' for the updated profile to take effect."
     else
         exit $exit_code
     fi
@@ -32,7 +32,6 @@ config_git() {
 config_profile() {
     echo > $profile
     tee -a $profile >/dev/null <<-'EOF'
-
 # Disable flow control for that terminal completely
 # To free the shortcuts Ctrl+s and Ctrl+q
 # stty -ixon
@@ -41,8 +40,8 @@ config_profile() {
 export HISTSIZE=100
 export HISTFILESIZE=100
 
-# local bin
-export PATH=$PATH:~/.local/bin:~/.local/miniconda/bin
+# local bin first
+export PATH=~/.local/bin:~/.local/miniconda/bin:$PATH
 
 # default EDITOR
 export EDITOR=vi
@@ -50,7 +49,6 @@ export EDITOR=vi
 # fzf
 [ -f ~/.fzfrc ] && source ~/.fzfrc
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-
 EOF
 
     echo "source $bash_profile/dynamic_source_all" >> $profile
@@ -75,6 +73,15 @@ config_ssh() {
     chmod 600 $sshconfig
 }
 
+setup_rg() {
+    work_in_temp
+    local name="BurntSushi/ripgrep"
+    local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
+    download https://github.com/$name/releases/download/$ver/ripgrep-$ver-x86_64-unknown-linux-musl.tar.gz
+    tar xvf ripgrep*.tar.gz
+    install ripgrep-*/rg $local_bin/
+}
+
 setup_fzf() {
     git_url=https://github.com/junegunn/fzf.git
     [ -n "$USE_GITEE" ] && git_url=https://gitee.com/open-resource/fzf.git
@@ -82,17 +89,19 @@ setup_fzf() {
 
     yes | ~/.fzf/install > /dev/null
 
-
     tee -a ~/.fzf.bash >/dev/null <<-'EOF'
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
-if command -v fd > /dev/null ; then
-	export FZF_DEFAULT_COMMAND="fd --hidden --exclude .git . $HOME"
-	export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} --type directory"
+if command -v rg > /dev/null ; then
+    export FZF_DEFAULT_COMMAND='rg --hidden --files --follow --glob "!{.git,node_modules}/*"'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND --null 2>/dev/null | xargs -0 dirname | awk '!h[\$0]++'"
 else
-	export FZF_DEFAULT_COMMAND="find $HOME ! -path '*/.git/*'"
-	export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} -type d"
+    export FZF_DEFAULT_COMMAND="find $HOME ! -path '*/.git/*'"
+    export FZF_ALT_C_COMMAND="${FZF_DEFAULT_COMMAND} -type d"
 fi
+
+bind -x '"\C-p": vim $(fzf);'
 EOF
 }
 
@@ -131,11 +140,6 @@ setup_fpp() {
     [ -n "$USE_GITEE" ] && git_url=https://gitee.com/mirrors/PathPicker.git
     $git_clone $git_url ~/.PathPicker
     ln -sf ~/.PathPicker/fpp $local_bin/fpp
-}
-
-config_vimrc() {
-    [ -e $vimrc ] && mv ${vimrc}{,.backup}
-    ln -sf $vimrcs/_vimrc_without_plug $vimrc
 }
 
 config_tmux() {

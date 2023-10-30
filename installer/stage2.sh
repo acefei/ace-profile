@@ -56,13 +56,6 @@ tmux(){
     install_pack ${install["$pm"]}
 }
 
-fd-find() {
-    install['apt']='nodejs'
-    install['yum']='nodejs'
-    install_pack ${install["$pm"]}
-    $gosu npm install -g fd-find --unsafe
-}
-
 _main() {
     echo "Start installing checked options..."
     local func_list=$(install_functions)
