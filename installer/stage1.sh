@@ -49,6 +49,16 @@ export EDITOR=vi
 # fzf
 [ -f ~/.fzfrc ] && source ~/.fzfrc
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+# nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh"  ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion"  ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 EOF
 
     echo "source $bash_profile/dynamic_source_all" >> $profile
@@ -108,9 +118,12 @@ EOF
 setup_pyenv() (
     work_in_temp
     curl https://pyenv.run | bash
-    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> $bashrc
-    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> $bashrc
-    echo 'eval "$(pyenv init -)"' >> $bashrc
+)
+
+setup_nvm() (
+    work_in_temp
+    ver=$(latest_in_github_release "https://github.com/nvm-sh/nvm/releases/latest")
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$ver/install.sh | bash
 )
 
 setup_shellcheck() (
