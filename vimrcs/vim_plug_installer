@@ -13,10 +13,6 @@ PLUGS['groovy']="\
      thecodesmith/vim-groovy \
      "
 
-PLUGS['ocaml']="\
-     ocaml/vim-ocaml \
-     "
-
 PLUGS['git']="\
      tpope/vim-fugitive \
      mhinz/vim-signify \
@@ -28,13 +24,10 @@ PLUGS['code-snippet']="\
      "
 
 PLUGS['generic']="\
-     w0rp/ale \
      Yggdroot/LeaderF \
-     scrooloose/nerdtree \
-     scrooloose/nerdcommenter \
+     dense-analysis/ale \
      jiangmiao/auto-pairs \
-     maralla/completor.vim \
-     kshenoy/vim-signature \
+     scrooloose/nerdcommenter \
      "
 #==================== End Plugin List =========================
 

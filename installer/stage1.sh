@@ -32,9 +32,8 @@ config_git() {
 config_profile() {
     echo > $profile
     tee -a $profile >/dev/null <<-'EOF'
-# Disable flow control for that terminal completely
 # To free the shortcuts Ctrl+s and Ctrl+q
-# stty -ixon
+stty start undef
 
 # history
 export HISTSIZE=100
