@@ -101,12 +101,19 @@
 
 " Plugin Settings {
     " Nerdcommenter {
-    "   Ctrl + / to to toggle comments like in vscode
+        " Ctrl + / to to toggle comments like in vscode
         map <C-_> <plug>NERDCommenterToggle
     " }
 
     " LeaderF {
-        nnoremap <silent> <C-p> :Leaderf rg<CR>
+        " rg search
+        nnoremap <leader>rg :Leaderf rg<CR>
+        " search word under cursor
+		nnoremap gf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
+        " search visually selected text literally
+        xnoremap gf :<C-U><C-R>=printf("Leaderf! rg -F -e %s ", leaderf#Rg#visual())<CR>
+        " recall last search. If the result window is closed, reopen it.
+        noremap go :<C-U>Leaderf! rg --recall<CR>
     " }
 
     " Ale {
