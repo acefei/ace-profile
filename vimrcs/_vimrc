@@ -83,9 +83,6 @@
         :nnoremap <Leader>q" ciw""<Esc>P
         :nnoremap <Leader>q' ciw''<Esc>P
         :nnoremap <Leader>qd daW"=substitute(@@,"'\\\|\"","","g")<CR>P"'")"'"
-
-        " Format groovy indent (just like javascript indent)
-        map <leader>gf :setf javascript<cr>gg=G:setf groovy<cr>
     " }
 
     " Misc {
@@ -96,6 +93,13 @@
              \ endif
         " Remember info about open buffers on close
         set viminfo^=%
+
+        " Fix compatibility issues between vim and Windows Terminal related to cursor position
+        if &term =~ "xterm"
+            let &t_SI = "\<Esc>[6 q"
+            let &t_SR = "\<Esc>[3 q"
+            let &t_EI = "\<Esc>[2 q"
+        endif
     " }
 " }
 
