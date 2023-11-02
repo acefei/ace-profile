@@ -56,10 +56,9 @@ nvm install --lts
 - [ripgrep](https://github.com/BurntSushi/ripgrep) is a line-oriented search tool that recursively searches the current directory for a regex pattern.
 - [Facebook PathPicker](https://github.com/facebook/PathPicker) is a simple command line tool that solves the perpetual problem of selecting files out of bash output.
 - git command completion and git prompt show
-  - Text-mode interface for git: [tig]](https://github.com/jonas/tig)
+  - Text-mode interface for git: [gitui]](https://github.com/Extrawurst/gitui)
 - vim8 support
-   - [vim pack](https://github.com/acefei/ace-profile/blob/master/utility/vim_pack) is used to install vim plugins.
-   - [bash support plugin](https://github.com/vim-scripts/bash-support.vim)
+   - [vim_plug_installer](https://github.com/acefei/ace-profile/blob/master/vimrcs/vim_plug_installer)
    - [_vimrc](https://github.com/acefei/ace-profile/blob/master/vimrcs/_vimrc)
 
 ## Reference

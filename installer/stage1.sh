@@ -82,6 +82,15 @@ config_ssh() {
     chmod 600 $sshconfig
 }
 
+setup_gitui() {
+    work_in_temp
+    local name="Extrawurst/gitui"
+    local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
+    download https://github.com/$name/releases/download/$ver/gitui-linux-musl.tar.gz
+    tar xvf gitui-linux-musl.tar.gz
+    install gitui $local_bin/
+}
+
 setup_rg() {
     work_in_temp
     local name="BurntSushi/ripgrep"
