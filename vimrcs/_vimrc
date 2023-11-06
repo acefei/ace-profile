@@ -37,10 +37,6 @@
         set splitright                  " Puts new vsplit windows to the right of the current
         set splitbelow                  " Puts new split windows to the bottom of the current
         set pastetoggle=<F12>           " pastetoggle (sane indentation on pastes)
-
-        " groovy.vim support
-        au BufNewFile,BufRead *.groovy setf groovy
-        au BufNewFile,BufRead Jenkinsfile setf groovy
     " }
 
     " Tab {
@@ -78,11 +74,6 @@
 
         " Allow saving of files as sudo when I forgot to start vim using sudo."
         cmap w!! w !sudo tee > /dev/null %
-
-        " Add quote around the word
-        :nnoremap <Leader>q" ciw""<Esc>P
-        :nnoremap <Leader>q' ciw''<Esc>P
-        :nnoremap <Leader>qd daW"=substitute(@@,"'\\\|\"","","g")<CR>P"'")"'"
     " }
 
     " Misc {
@@ -104,6 +95,10 @@
 " }
 
 " Plugin Settings {
+    " AutoPairs{
+        let g:AutoPairsShortcutFastWrap = '<C-e>'
+    " }
+
     " Nerdcommenter {
         " Ctrl + / to to toggle comments like in vscode
         map <C-_> <plug>NERDCommenterToggle
