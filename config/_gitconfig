@@ -27,8 +27,10 @@
     dcf = diff --name-only --cached
     dp = diff HEAD^
     dpf = diff --name-only HEAD^
-    cm = commit -a -s -m
-    caa = commit -a -s --amend --no-edit
+    cm = commit -a -s
+    cmm = commit -a -s -m
+    cma = commit -a -s --amend
+    cmn = commit -a -s --amend --no-edit
     pf = push --force-with-lease
     pr = pull --rebase
     rbm = !git fetch --prune && git rebase origin/master
