@@ -27,6 +27,7 @@
     dcf = diff --name-only --cached
     dp = diff HEAD^
     dpf = diff --name-only HEAD^
+    czs = cz -a -s
     cm = commit -a -s
     cmm = commit -a -s -m
     cma = commit -a -s --amend
