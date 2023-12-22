@@ -34,8 +34,8 @@
     cmn = commit -a -s --amend --no-edit
     pf = push --force-with-lease
     pr = pull --rebase
-    rbm = !git fetch --prune && git rebase origin/master
-    rbi = !git rebase -i $(git merge-base --fork-point origin/HEAD HEAD)
+    rbm = !git fetch --prune && git rebase origin/master --signoff
+    rbi = !git rebase -i $(git merge-base --fork-point origin/HEAD HEAD) --signoff
     rbc = !git add -A && git rebase --continue
 
 # Get the current branch name
