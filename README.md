@@ -20,7 +20,7 @@ curl -fsSL https://gitee.com/acefei/ace-profile/raw/master/installer/install.sh 
 > 3. You need to modify $HOME/.gitconfig for github user info
 
 ### Windows
-Press `Win + x + i`, then run following cmd.
+Press `Win + x` and press `a`, then run following cmd.
 ```
 Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/acefei/ace-profile/master/installer/setup-win.ps1'))
 ```
