@@ -32,6 +32,11 @@ config_git() {
 config_profile() {
     echo > $profile
     tee -a $profile >/dev/null <<-'EOF'
+# Source global definitions
+if [ -f /etc/bashrc  ]; then
+    . /etc/bashrc
+fi
+
 # To free the shortcuts Ctrl+s and Ctrl+q
 stty start undef
 
