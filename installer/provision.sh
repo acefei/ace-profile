@@ -31,22 +31,6 @@ if [ -f /proc/cpuinfo  ]; then
     CPUS=`grep processor /proc/cpuinfo | wc -l`
 fi
 
-# Operating system identification
-source /etc/os-release
-case "${ID_LIKE:-${ID:-unknown}}" in
-  rhel*|centos)
-      pm=yum
-      ;;
-  debian*)
-      export DEBIAN_FRONTEND=noninteractive
-      pm=apt
-      ;;
-  *)
-      echo Unknown OS, currently only support centos/debian.
-      exit 1
-      ;;
-esac
-
 install_pack() {
     local pack_name="$*"
     if [ -z "$pack_name" ];then 

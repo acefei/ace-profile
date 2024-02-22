@@ -57,6 +57,22 @@ tmux(){
 }
 
 _main() {
+    # Operating system identification
+    source /etc/os-release
+    case "${ID_LIKE:-${ID:-unknown}}" in
+      rhel*|centos)
+          pm=yum
+          ;;
+      debian*)
+          export DEBIAN_FRONTEND=noninteractive
+          pm=apt
+          ;;
+      *)
+          echo Unknown OS, currently only support centos/debian.
+          exit 1
+          ;;
+    esac
+
     echo "Start installing checked options..."
     local func_list=$(install_functions)
     source $current_dir/multiselect $func_list 
