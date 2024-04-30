@@ -39,7 +39,7 @@ stty start undef
 export HISTSIZE=100
 export HISTFILESIZE=100
 
-# local bin first
+# local bin
 export PATH=~/.local/bin:~/.local/go/bin:$PATH
 
 # default EDITOR
@@ -58,6 +58,7 @@ eval "$(pyenv init -)"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh"  ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion"  ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
 EOF
 
     echo "source $bash_profile/dynamic_source_all" >> $profile
@@ -130,16 +131,25 @@ setup_pyenv() (
 
 setup_nvm() (
     work_in_temp
-    ver=$(latest_in_github_release "https://github.com/nvm-sh/nvm/releases/latest")
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$ver/install.sh | bash
+    version=$(latest_in_github_release "https://github.com/nvm-sh/nvm/releases/latest")
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$version/install.sh | bash
 )
 
 setup_go() (
    work_in_temp
-   download https://dl.google.com/go/go1.22.2.linux-amd64.tar.gz
+   version=1.22.2
+   download https://dl.google.com/go/go${verion}.linux-amd64.tar.gz
    rm -rf $HOME/.local/go
-   tar -C $HOME/.local -xzf go1.22.2.linux-amd64.tar.gz
+   tar -C $HOME/.local -xzf go${version}.linux-amd64.tar.gz
 )
+
+setup_terraform() {
+    work_in_temp
+    version=1.8.2
+    curl -O https://releases.hashicorp.com/terraform/${version}/terraform_${version}_linux_amd64.zip
+    unzip terraform_${version}_linux_amd64.zip
+    install terraform $local_bin
+}
 
 setup_shellcheck() (
     work_in_temp
