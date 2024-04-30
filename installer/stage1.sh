@@ -40,7 +40,7 @@ export HISTSIZE=100
 export HISTFILESIZE=100
 
 # local bin first
-export PATH=~/.local/bin:~/.local/miniconda/bin:$PATH
+export PATH=~/.local/bin:~/.local/go/bin:$PATH
 
 # default EDITOR
 export EDITOR=vi
@@ -134,9 +134,16 @@ setup_nvm() (
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$ver/install.sh | bash
 )
 
+setup_go() (
+   work_in_temp
+   download https://dl.google.com/go/go1.22.2.linux-amd64.tar.gz
+   rm -rf $HOME/.local/go
+   tar -C $HOME/.local -xzf go1.22.2.linux-amd64.tar.gz
+)
+
 setup_shellcheck() (
     work_in_temp
-    download https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.$(arch).tar.xz
+    download https://github.com/koalaman/shellcheck/releases/download/latest/shellcheck-latest.linux.x86_64.tar.xz
     tar xvf shellcheck*.tar.xz
     install shellcheck*/shellcheck $local_bin
 )
