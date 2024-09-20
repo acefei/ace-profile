@@ -65,6 +65,6 @@ bash_prompt()
 INTERPRET
   
     EXIT_STATUS="\`if [ \$? -eq 0 ]; then echo \"$G\"; else echo \"$R\"; fi\`"  
-    export PS1="\n$EXIT_STATUS<\!> $M\u@\h$C\$(__git_ps1 2>/dev/null) $W[\w] \n$CC\$"
+    export PS1="\n$EXIT_STATUS<\!> $M\u@\h$C "'`__git_ps1 2>/dev/null`'" $W[\w] \n$CC\$"
 } 
 bash_prompt

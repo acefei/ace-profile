@@ -1,12 +1,12 @@
 #-------------------------------------------------------------
 # File & strings related functions:
 #-------------------------------------------------------------
-backup_file() { 
-    cp $1{,.`date +%Y%m%d`} 
+backup_file() {
+    cp $1{,.`date +%Y%m%d`}
 }
 alias bk=backup_file
 
-move_to_backup() { 
+move_to_backup() {
     local backup_path=$HOME/backup
     mkdir -p $backup_path
     mv $* $backup_path
@@ -20,7 +20,7 @@ find_string()
 {
     local file_pattern=$2
     if [ -z "$file_pattern" ];then
-        grep -nr "${1:?Usage: $FUNCNAME <keyword> [file_pattern]}" 
+        grep -nr "${1:?Usage: $FUNCNAME <keyword> [file_pattern]}"
     else
         grep -nr "${1:?Usage: $FUNCNAME <keyword> [file_pattern]}" | grep "$file_pattern"
     fi
@@ -160,7 +160,7 @@ branch_create_time()
 
 remove_gone_branch() {
     # any orphaned tracking branch will be marked "[gone]"
-    local branchs=$(git branch --list --format "%(if:equals=[gone])%(upstream:track)%(then)%(refname:short)%(end)") 
+    local branchs=$(git branch --list --format "%(if:equals=[gone])%(upstream:track)%(then)%(refname:short)%(end)")
     local branch
     for branch in $branchs; do
         [ -n "$branch" ] && git branch -D $branch
@@ -211,11 +211,14 @@ alias pgt=prune_git_tags
 prune_git_branchs() (
     local branchs branch
 
-    branchs=$1 
-    git checkout master
+    branchs=$1
+    if [ "$branchs" = "$(git branch --show-current)" ];then
+        echo "Can't remove $branchs in the same branch"
+        exit 1
+    fi
 
     if [ -z "${branchs}" ] ;then
-        git fetch -p && remove_gone_branch 
+        git fetch -p && remove_gone_branch
         branchs=$(my_branchs)
     fi
 
