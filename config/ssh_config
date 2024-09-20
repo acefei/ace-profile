@@ -7,5 +7,4 @@ Host *
     ForwardX11Trusted yes
     TCPKeepAlive yes
     KexAlgorithms +diffie-hellman-group1-sha1
-    HostKeyAlgorithms +ssh-dss
     Ciphers +3des-cbc

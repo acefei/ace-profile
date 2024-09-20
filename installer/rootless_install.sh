@@ -3,14 +3,15 @@
 source $HOME/.ace_profile_env
 
 INSTALLATION_PATH=$PROFILE_PATH/installer
-source $INSTALLATION_PATH/provision.sh
+source $INSTALLATION_PATH/global.sh
 
-trap _teardown EXIT
-_teardown() {
+trap teardown EXIT
+teardown() {
     local exit_code=$?
     if [ $exit_code -eq 0 ];then
-        echo
-        echo "Installation complete! To run 'bash' for the updated profile to take effect."
+        echo "Installation Successfully!"
+        is_win && return
+        ask_exit
     else
         exit $exit_code
     fi
@@ -18,10 +19,9 @@ _teardown() {
 }
 
 config_git() {
-    # refer to https://apple.stackexchange.com/a/328144
-    git_ver=$(git --version | awk '{print $3}')
+    git_ver=$(git --version | cut -d' ' -f3 | cut -d'.' -f1-3)
     git_url=https://raw.githubusercontent.com/git/git
-    [ -n "$USE_GITEE" ] && git_url=https://gitee.com/mirrorgit/git/raw
+    [ -n "${USE_GITEE:-}" ] && git_url=https://gitee.com/mirrorgit/git/raw
     download $git_url/v$git_ver/contrib/completion/git-completion.bash $HOME/.git-completion.bash
     download $git_url/v$git_ver/contrib/completion/git-prompt.sh $HOME/.git-prompt.sh
 
@@ -39,6 +39,9 @@ stty start undef
 export HISTSIZE=100
 export HISTFILESIZE=100
 
+# locale
+export LC_ALL=en_US.UTF-8
+
 # local bin
 export PATH=~/.local/bin:~/.local/go/bin:$PATH
 
@@ -50,9 +53,11 @@ export EDITOR=vi
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 # pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+if command -v pyenv > /dev/null ; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+fi
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
@@ -76,15 +81,25 @@ config_utility() {
 }
 
 config_ssh() {
+    $PROFILE_PATH/vimrcs/vim_plug_installer
+}
+
+config_tmux() {
+    is_win && return
+    [ -e $tmuxconfig ] && mv ${tmuxconfig}{,.backup}
+    ln -sf $config/tmux.conf $tmuxconfig
+}
+
+
+config_ssh() {
     [ -d $HOME/.ssh ] || mkdir $HOME/.ssh
     cp -f $config/ssh_config $sshconfig
-
-    # fix Bad owner or permissions on XXX
     chmod 600 $sshconfig
 }
 
 setup_gitui() {
-    work_in_temp
+    is_win && return
+    work_in_temp_dir
     local name="Extrawurst/gitui"
     local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
     download https://github.com/$name/releases/download/$ver/gitui-linux-musl.tar.gz
@@ -93,7 +108,8 @@ setup_gitui() {
 }
 
 setup_rg() {
-    work_in_temp
+    is_win && return
+    work_in_temp_dir
     local name="BurntSushi/ripgrep"
     local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
     download https://github.com/$name/releases/download/$ver/ripgrep-$ver-x86_64-unknown-linux-musl.tar.gz
@@ -103,12 +119,12 @@ setup_rg() {
 
 setup_fzf() {
     git_url=https://github.com/junegunn/fzf.git
-    [ -n "$USE_GITEE" ] && git_url=https://gitee.com/open-resource/fzf.git
-    $git_clone $git_url ~/.fzf
-
-    yes | ~/.fzf/install > /dev/null
-
-    tee -a ~/.fzf.bash >/dev/null <<-'EOF'
+    [ -n "${USE_GITEE:-}" ] && git_url=https://gitee.com/open-resource/fzf.git
+    local dest_path=$HOME/.fzf
+    [ -d $dest_path ] && return
+    $git_clone $git_url $dest_path
+    yes | $dest_path/install > /dev/null
+    tee -a $HOME/.fzf.bash >/dev/null <<-'EOF'
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
 if command -v rg > /dev/null ; then
@@ -125,76 +141,74 @@ EOF
 }
 
 setup_pyenv() (
-    work_in_temp
-    curl https://pyenv.run | bash
+    is_win && return
+    work_in_temp_dir
+    curl_install https://pyenv.run
 )
 
 setup_nvm() (
-    work_in_temp
-    version=$(latest_in_github_release "https://github.com/nvm-sh/nvm/releases/latest")
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$version/install.sh | bash
+    is_win && return
+    work_in_temp_dir
+    local ver=$(latest_in_github_release "https://github.com/nvm-sh/nvm/releases/latest")
+    curl_install https://raw.githubusercontent.com/nvm-sh/nvm/${ver}/install.sh
 )
 
 setup_go() (
-   work_in_temp
-   version=1.22.2
-   download https://dl.google.com/go/go${verion}.linux-amd64.tar.gz
-   rm -rf $HOME/.local/go
-   tar -C $HOME/.local -xzf go${version}.linux-amd64.tar.gz
+    is_win && return
+    work_in_temp_dir
+    local ver=1.22.2
+    download https://dl.google.com/go/go${ver}.linux-amd64.tar.gz
+    rm -rf $HOME/.local/go
+    tar -C $HOME/.local -xzf go${ver}.linux-amd64.tar.gz
 )
 
 setup_terraform() {
-    work_in_temp
-    version=1.8.2
-    curl -O https://releases.hashicorp.com/terraform/${version}/terraform_${version}_linux_amd64.zip
-    unzip terraform_${version}_linux_amd64.zip
+    is_win && return
+    work_in_temp_dir
+    local ver=1.8.2
+    curl -O https://releases.hashicorp.com/terraform/${ver}/terraform_${ver}_linux_amd64.zip
+    unzip terraform_${ver}_linux_amd64.zip
     install terraform $local_bin
 }
 
 setup_shellcheck() (
-    work_in_temp
+    is_win && return
+    work_in_temp_dir
     download https://github.com/koalaman/shellcheck/releases/download/latest/shellcheck-latest.linux.x86_64.tar.xz
     tar xvf shellcheck*.tar.xz
     install shellcheck*/shellcheck $local_bin
 )
 
 setup_sops() (
-    work_in_temp
-    ver=$(latest_in_github_release "https://github.com/mozilla/sops/releases/latest")
+    is_win && return
+    work_in_temp_dir
+    local ver=$(latest_in_github_release "https://github.com/mozilla/sops/releases/latest")
     download https://github.com/mozilla/sops/releases/download/$ver/sops-$ver.linux.amd64
     install sops-* $local_bin/sops
 )
 
 setup_age() (
-    work_in_temp
-    ver=$(latest_in_github_release "https://github.com/FiloSottile/age/releases/latest")
+    is_win && return
+    work_in_temp_dir
+    local ver=$(latest_in_github_release "https://github.com/FiloSottile/age/releases/latest")
     download https://github.com/FiloSottile/age/releases/download/$ver/age-$ver-linux-amd64.tar.gz
     tar zxvf age*.tar.gz
     install -D age/age* $local_bin
 )
 
 setup_fpp() {
-    git_url=https://github.com/facebook/PathPicker.git
-    [ -n "$USE_GITEE" ] && git_url=https://gitee.com/mirrors/PathPicker.git
-    $git_clone $git_url ~/.PathPicker
-    ln -sf ~/.PathPicker/fpp $local_bin/fpp
+    local git_url=https://github.com/facebook/PathPicker.git
+    local dest_path=$HOME/.PathPicker
+    [ -n "${USE_GITEE:-}" ] && git_url=https://gitee.com/mirrors/PathPicker.git
+    [ ! -d $dest_path ] && $git_clone $git_url $dest_path
+    ln -sf $dest_path/fpp $local_bin/fpp
 }
 
-config_tmux() {
-    [ -e $tmuxconfig ] && mv ${tmuxconfig}{,.backup}
-    ln -sf $config/tmux.conf $tmuxconfig
-}
-
-_set_mirror() {
-    [ -z "$USE_GITEE" ] && return
-    export SET_MIRROR=yes
-    $utility/deploy_mirror ||:
-}
 
 _main() {
-    local func_list=$(install_functions)
+    local install_functions=$(declare -F | cut -d' ' -f3 | grep -E "(config|setup)_" )
     local func
-    for func in $func_list; do
+    for func in $install_functions; do
         {
             echo "---> start $func..."
             ${func}
@@ -208,9 +222,6 @@ _main() {
 ##################### MAIN ##########################
 if [ -z "${1:-}" ];then
     _main
-    # continue stage2 with sudo priviledge.
-    _set_mirror
-    exec $INSTALLATION_PATH/stage2.sh
 else
     # test specific setup method.
     eval "$1"

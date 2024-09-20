@@ -1,31 +1,30 @@
 #!/usr/bin/env bash
 
+source $HOME/.ace_profile_env
+INSTALLATION_PATH=$PROFILE_PATH/installer
+source $INSTALLATION_PATH/global.sh
+
 # edit the following for what plugins you want to install.
 # PLUGS is an associative array of which subscript indicates package group and value indicates plugin names.
 declare -A PLUGS
 
 #====================== Start Plugin List =========================
-PLUGS['shell']="\
+PLUGS['linux']="\
      itspriddle/vim-shellcheck \
-     "
-
-PLUGS['groovy']="\
-     thecodesmith/vim-groovy \
-     "
-
-PLUGS['git']="\
      tpope/vim-fugitive \
      mhinz/vim-signify \
-     "
-
-PLUGS['code-snippet']="\
      SirVer/ultisnips \
      acefei/vim-snippets\
-     "
-
-PLUGS['generic']="\
      Yggdroot/LeaderF \
      dense-analysis/ale \
+     jiangmiao/auto-pairs \
+     scrooloose/nerdcommenter \
+     "
+
+PLUGS['windows']="\
+     itspriddle/vim-shellcheck \
+     tpope/vim-fugitive \
+     mhinz/vim-signify \
      jiangmiao/auto-pairs \
      scrooloose/nerdcommenter \
      "
@@ -73,12 +72,17 @@ install_plugins() {
     for key in ${!PLUGS[*]}
     do
         {
-			set_group $key
+            # install windows group when is_win is true
+            if is_win; then
+                [ $key = "linux" ] && return
+            fi
+
+            set_group $key
             for plug in ${PLUGS[$key]}
             do
                 package https://github.com/${plug}.git &
             done
-			wait
+            wait
         } &
     done
 
@@ -97,9 +101,6 @@ finish() {
     fi
 
     # copy _vimrc to ~/.vimrc
-    source $HOME/.ace_profile_env
-    INSTALLATION_PATH=$PROFILE_PATH/installer
-    source $INSTALLATION_PATH/provision.sh
     ln -sf $vimrcs/_vimrc $vimrc
 }
 trap finish EXIT
