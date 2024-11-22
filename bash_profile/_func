@@ -217,6 +217,9 @@ prune_git_branchs() (
         exit 1
     fi
 
+    set -e
+    git checkout $(git remote show origin | grep -Po "HEAD branch: \K.*")
+
     if [ -z "${branchs}" ] ;then
         git fetch -p && remove_gone_branch
         branchs=$(my_branchs)
@@ -250,3 +253,34 @@ prune_docker_image() {
     docker image prune -a
 }
 alias pdi=prune_docker_image
+
+restore_staged_files() {
+    IFS=$'\n' read -r -d '' -a staged_files <<<"$(git dcf)"
+
+    echo "Select the file to restore:"
+    for i in ${!staged_files[@]}; do
+        echo "$((i+1)). ${staged_files[$i]}"
+    done
+
+    read -p "Enter your choice (0 to exit): " choice
+
+    selected_files=()
+        while [ "$choice" != "0" ]; do
+                if [ "$choice" -ge 1 ] && [ "$choice" -le "${#staged_files[@]}" ]; then
+                        selected_files+=(${staged_files[$((choice-1))]})
+                        echo "Selected: ${selected_files[@]}"
+                else
+                        echo "Invalid choice. Please try again."
+                fi
+                read -p "Enter your choice (0 to restore the selected files and exit): " choice
+        done
+
+    if [ ${#selected_files[@]} -ne 0 ];then
+        git restore --staged "${selected_files[@]}"
+        git co -- "${selected_files[@]}"
+        echo "Restored: ${selected_files[@]}"
+    fi
+
+    echo "Exiting..."
+}
+alias rsf=restore_staged_files
