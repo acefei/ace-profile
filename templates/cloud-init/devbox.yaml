@@ -2,57 +2,27 @@ package_update: true
 package_upgrade: true
 
 packages:
-- python3-pip
-- jq
+  - curl
+  - python3-pip
 
-snap:
-  commands:
-  - snap install microk8s --classic
-  - snap alias microk8s.kubectl kubectl
-  - snap refresh
+ssh_authorized_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDBI418gou9LpCEpafwW8p+xdvyXSFmh7siEG9goJOpJinje2rNksmHbOqaYiX53ZkryHfDyjjPpASB7yKo8FkRU64c+R8B+AyPDHE/DjyqHQBQqZ8GJi4rOAfJQvBftAjSVD1DLkLl0FWH7up/FpVcuKekixJzVfN+wrPVcQiDbLyITbqRO/JW5EmPNJDw/dOEhPSSwAsL+zfILWrYOJ8v2BWqnRiZ56obUqjbf3o2Q4eInbJjLnUZpOU9C2Xwtytfums2PbkwcTxgbmh/kM8RvkCCR0tCFNdkT9KAoHOuLbVxRcNoQ7L82mDU6JTquehNoMSGw+550Cd1EBnfMCIz generic-dtbox
 
+# create the docker group
+groups:
+    - docker
+   
+# add the default user 
+users:
+    - default
+    - name: acefei
+    - sudo: ALL=(ALL) NOPASSWD:ALL
+    - groups: sudo, docker
+
+# run updates and install docker
 runcmd:
-- |
-  # disable swap
-  sysctl -w vm.swappiness=0
-  echo "vm.swappiness = 0" | tee -a /etc/sysctl.conf
-  swapoff -a
+    - 'curl -fsSL https://get.docker.com -o get-docker.sh'
+    - 'sudo sh get-docker.sh'
 
-- |
-  # disable unnecessary services
-  systemctl disable man-db.timer man-db.service --now
-  systemctl disable apport.service apport-autoreport.service  --now
-  systemctl disable apt-daily.service apt-daily.timer --now
-  systemctl disable apt-daily-upgrade.service apt-daily-upgrade.timer --now
-  systemctl disable unattended-upgrades.service --now
-  systemctl disable motd-news.service motd-news.timer --now
-  systemctl disable bluetooth.target --now
-  systemctl disable ua-messaging.service ua-messaging.timer --now
-  systemctl disable ua-timer.timer ua-timer.service --now
-  systemctl disable systemd-tmpfiles-clean.timer --now
-
-- |
-  # apt cleanup
-  apt remove -y landscape-client landscape-common
-  apt-get autoremove -y
-
-- |
-  # $HOME/.local/bin
-  sudo -u ubuntu mkdir -p /home/ubuntu/.local/bin
-  sudo -u ubuntu echo "" > .
-
-- |
-  # setup microk8s and bootstrap
-  sudo usermod -a -G snap_microk8s ubuntu
-  sudo -u ubuntu mkdir -p /home/ubuntu/.kube
-  adduser ubuntu microk8s
-  microk8s status --wait-ready
-
-  # wait for ingress to become available
-  microk8s.enable ingress
-  microk8s.kubectl rollout status daemonsets/nginx-ingress-microk8s-controller -n ingress -w --timeout=600s
-
-  # dump config (this is needed for utils such as k9s or kdash)
-  microk8s config | sudo -u ubuntu tee /home/ubuntu/.kube/config > /dev/null
-
+    
 final_message: "The system is finally up, after $UPTIME seconds"
