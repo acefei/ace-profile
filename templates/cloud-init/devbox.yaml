@@ -1,3 +1,4 @@
+# multipass launch --name ace-dtbox --cpus 2 --memory 8G --disk 96G --cloud-init https://raw.githubusercontent.com/acefei/ace-profile/refs/heads/main/templates/cloud-init/devbox.yaml
 package_update: true
 package_upgrade: true
 
