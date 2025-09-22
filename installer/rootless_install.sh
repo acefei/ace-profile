@@ -11,7 +11,8 @@ teardown() {
     if [ $exit_code -eq 0 ];then
         echo "Installation Successfully!"
         is_win && return
-        ask_exit
+	g=$(groups)
+        newgrp ${g##* }
     else
         exit $exit_code
     fi
@@ -51,13 +52,6 @@ export EDITOR=vi
 # fzf
 [ -f ~/.fzfrc ] && source ~/.fzfrc
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-
-# pyenv
-if command -v pyenv > /dev/null ; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
-fi
 
 # nvm
 export NVM_DIR="$HOME/.nvm"
@@ -140,10 +134,10 @@ bind -x '"\C-p": vim $(fzf);'
 EOF
 }
 
-setup_pyenv() (
+setup_uv() (
     is_win && return
     work_in_temp_dir
-    curl_install https://pyenv.run
+    curl_install https://astral.sh/uv/install.sh
 )
 
 setup_nvm() (
