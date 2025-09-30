@@ -146,6 +146,14 @@ setup_nvm() (
     curl_install https://raw.githubusercontent.com/nvm-sh/nvm/${ver}/install.sh
 )
 
+setup_ollama() (
+    is_win && return
+    work_in_temp_dir
+    download https://ollama.com/download/ollama-linux-amd64.tgz
+    rm -rf $HOME/.local/ollama
+    tar -C $HOME/.local -xzf ollama-linux-amd64.tgz
+)
+
 setup_go() (
     is_win && return
     work_in_temp_dir
