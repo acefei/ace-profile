@@ -140,6 +140,14 @@ setup_uv() (
     curl_install https://astral.sh/uv/install.sh
 )
 
+setup_ollama() (
+    is_win && return
+    work_in_temp_dir
+    download https://ollama.com/download/ollama-linux-amd64.tgz
+    rm -rf $HOME/.local/ollama
+    tar -C $HOME/.local -xzf ollama-linux-amd64.tgz
+)
+
 setup_nvm() (
     is_win && return
     work_in_temp_dir
