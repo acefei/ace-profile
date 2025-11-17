@@ -21,7 +21,6 @@ teardown() {
 config_git() {
     git_ver=$(git --version | cut -d' ' -f3 | cut -d'.' -f1-3)
     git_url=https://raw.githubusercontent.com/git/git
-    [ -n "${USE_GITEE:-}" ] && git_url=https://gitee.com/mirrorgit/git/raw
     download $git_url/v$git_ver/contrib/completion/git-completion.bash $HOME/.git-completion.bash
     download $git_url/v$git_ver/contrib/completion/git-prompt.sh $HOME/.git-prompt.sh
 
@@ -83,20 +82,13 @@ config_tmux() {
     ln -sf $config/tmux.conf $tmuxconfig
 }
 
-
-config_ssh() {
-    [ -d $HOME/.ssh ] || mkdir $HOME/.ssh
-    cp -f $config/ssh_config $sshconfig
-    chmod 600 $sshconfig
-}
-
 setup_gitui() {
-    is_win && return
+    { is_win || is_mac; } && return
     work_in_temp_dir
-    local name="Extrawurst/gitui"
+    local name="gitui-org/gitui"
     local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
-    download https://github.com/$name/releases/download/$ver/gitui-linux-musl.tar.gz
-    tar xvf gitui-linux-musl.tar.gz
+    download https://github.com/$name/releases/download/$ver/gitui-linux-x86_64.tar.gz
+    extract gitui-linux-x86_64.tar.gz
     install gitui $local_bin/
 }
 
@@ -106,13 +98,22 @@ setup_rg() {
     local name="BurntSushi/ripgrep"
     local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
     download https://github.com/$name/releases/download/$ver/ripgrep-$ver-x86_64-unknown-linux-musl.tar.gz
-    tar xvf ripgrep*.tar.gz
+    extract ripgrep*.tar.gz
     install ripgrep-*/rg $local_bin/
+}
+
+setup_gh() {
+    is_win && return
+    work_in_temp_dir
+    local name="cli/cli"
+    local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
+    download https://github.com/$name/releases/download/$ver/gh_${ver##v}_linux_amd64.tar.gz
+    extract gh_${ver##v}_linux_amd64.tar.gz
+    install gh_${ver##v}_linux_amd64/bin/gh $local_bin/
 }
 
 setup_fzf() {
     git_url=https://github.com/junegunn/fzf.git
-    [ -n "${USE_GITEE:-}" ] && git_url=https://gitee.com/open-resource/fzf.git
     local dest_path=$HOME/.fzf
     [ -d $dest_path ] && return
     $git_clone $git_url $dest_path
@@ -146,38 +147,22 @@ setup_nvm() (
     curl_install https://raw.githubusercontent.com/nvm-sh/nvm/${ver}/install.sh
 )
 
-setup_ollama() (
-    is_win && return
-    work_in_temp_dir
-    download https://ollama.com/download/ollama-linux-amd64.tgz
-    rm -rf $HOME/.local/ollama
-    tar -C $HOME/.local -xzf ollama-linux-amd64.tgz
-)
-
 setup_go() (
     is_win && return
     work_in_temp_dir
     local ver=1.22.2
     download https://dl.google.com/go/go${ver}.linux-amd64.tar.gz
     rm -rf $HOME/.local/go
-    tar -C $HOME/.local -xzf go${ver}.linux-amd64.tar.gz
+    extract go${ver}.linux-amd64.tar.gz $HOME/.local
 )
 
-setup_terraform() {
+setup_terraform() (
     is_win && return
     work_in_temp_dir
     local ver=1.8.2
     curl -O https://releases.hashicorp.com/terraform/${ver}/terraform_${ver}_linux_amd64.zip
-    unzip terraform_${ver}_linux_amd64.zip
+    extract terraform_${ver}_linux_amd64.zip
     install terraform $local_bin
-}
-
-setup_shellcheck() (
-    is_win && return
-    work_in_temp_dir
-    download https://github.com/koalaman/shellcheck/releases/download/latest/shellcheck-latest.linux.x86_64.tar.xz
-    tar xvf shellcheck*.tar.xz
-    install shellcheck*/shellcheck $local_bin
 )
 
 setup_sops() (
@@ -193,29 +178,33 @@ setup_age() (
     work_in_temp_dir
     local ver=$(latest_in_github_release "https://github.com/FiloSottile/age/releases/latest")
     download https://github.com/FiloSottile/age/releases/download/$ver/age-$ver-linux-amd64.tar.gz
-    tar zxvf age*.tar.gz
+    extract age*.tar.gz
     install -D age/age* $local_bin
 )
 
-setup_fpp() {
+setup_fpp() (
     local git_url=https://github.com/facebook/PathPicker.git
     local dest_path=$HOME/.PathPicker
-    [ -n "${USE_GITEE:-}" ] && git_url=https://gitee.com/mirrors/PathPicker.git
     [ ! -d $dest_path ] && $git_clone $git_url $dest_path
     ln -sf $dest_path/fpp $local_bin/fpp
-}
+)
 
 
 _main() {
-    local install_functions=$(declare -F | cut -d' ' -f3 | grep -E "(config|setup)_" )
-    local func
-    for func in $install_functions; do
-        {
-            echo "---> start $func..."
-            ${func}
-            echo "---> $func done..."
-
-        } &
+    # Run config functions first (sequentially)
+    local config_functions=$(declare -F | cut -d' ' -f3 | grep "config_")
+    for func in $config_functions; do
+        echo "---> Running $func..."
+        ${func}
+    done
+    
+    echo ""
+    echo "Installing packages concurrently..."
+    
+    # Run setup functions with spinner (concurrently)
+    local setup_functions=$(declare -F | cut -d' ' -f3 | grep "setup_")
+    for func in $setup_functions; do
+        install_with_spinner "$func" "$func" &
     done
     wait
 }
@@ -225,5 +214,6 @@ if [ -z "${1:-}" ];then
     _main
 else
     # test specific setup method.
+    set -x
     eval "$1"
 fi

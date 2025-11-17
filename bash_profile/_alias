@@ -14,6 +14,7 @@ alias ....='cd ../../..'
 alias c='clear'
 alias dri='docker run -it -v $(pwd):/app -w /app'
 alias dr='docker run --rm -v $(pwd):/app -w /app'
+alias docker='podman'
 
 # Pretty-print of some PATH variables:
 alias path='echo -e ${PATH//:/\\n}'
