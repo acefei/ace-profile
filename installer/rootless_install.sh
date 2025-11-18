@@ -77,7 +77,7 @@ config_ssh() {
 }
 
 config_tmux() {
-    is_win && return
+    { is_win || is_mac; } && return
     [ -e $tmuxconfig ] && mv ${tmuxconfig}{,.backup}
     ln -sf $config/tmux.conf $tmuxconfig
 }
@@ -93,7 +93,7 @@ setup_gitui() {
 }
 
 setup_rg() {
-    is_win && return
+    { is_win || is_mac; } && return
     work_in_temp_dir
     local name="BurntSushi/ripgrep"
     local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
@@ -103,7 +103,7 @@ setup_rg() {
 }
 
 setup_gh() {
-    is_win && return
+    { is_win || is_mac; } && return
     work_in_temp_dir
     local name="cli/cli"
     local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
@@ -148,7 +148,7 @@ setup_nvm() (
 )
 
 setup_go() (
-    is_win && return
+    { is_win || is_mac; } && return
     work_in_temp_dir
     local ver=1.22.2
     download https://dl.google.com/go/go${ver}.linux-amd64.tar.gz
@@ -157,7 +157,7 @@ setup_go() (
 )
 
 setup_terraform() (
-    is_win && return
+    { is_win || is_mac; } && return
     work_in_temp_dir
     local ver=1.8.2
     curl -O https://releases.hashicorp.com/terraform/${ver}/terraform_${ver}_linux_amd64.zip
@@ -166,7 +166,7 @@ setup_terraform() (
 )
 
 setup_sops() (
-    is_win && return
+    { is_win || is_mac; } && return
     work_in_temp_dir
     local ver=$(latest_in_github_release "https://github.com/mozilla/sops/releases/latest")
     download https://github.com/mozilla/sops/releases/download/$ver/sops-$ver.linux.amd64
@@ -174,7 +174,7 @@ setup_sops() (
 )
 
 setup_age() (
-    is_win && return
+    { is_win || is_mac; } && return
     work_in_temp_dir
     local ver=$(latest_in_github_release "https://github.com/FiloSottile/age/releases/latest")
     download https://github.com/FiloSottile/age/releases/download/$ver/age-$ver-linux-amd64.tar.gz
