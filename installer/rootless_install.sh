@@ -5,11 +5,20 @@ source $HOME/.ace_profile_env
 INSTALLATION_PATH=$PROFILE_PATH/installer
 source $INSTALLATION_PATH/global.sh
 
+echo "========================================"
+echo "  Ace Profile Installer"
+echo "========================================"
+echo ""
+
 trap teardown EXIT
 teardown() {
     local exit_code=$?
     if [ $exit_code -eq 0 ];then
-        echo "Installation Successfully!"
+        echo ""
+        echo "========================================"
+        echo "  Installation Successfully!"
+        echo "========================================"
+        echo ""
         is_win && return
         ask_exit
     else
@@ -103,13 +112,28 @@ setup_rg() {
 }
 
 setup_gh() {
-    { is_win || is_mac; } && return
     work_in_temp_dir
     local name="cli/cli"
     local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
-    download https://github.com/$name/releases/download/$ver/gh_${ver##v}_linux_amd64.tar.gz
-    extract gh_${ver##v}_linux_amd64.tar.gz
-    install gh_${ver##v}_linux_amd64/bin/gh $local_bin/
+    local ver_number=${ver##v}
+    local tarball
+    
+    if is_win; then
+        tarball="gh_${ver_number}_windows_amd64.zip"
+    elif is_mac; then
+        tarball="gh_${ver_number}_macOS_amd64.tar.gz"
+    else
+        tarball="gh_${ver_number}_linux_amd64.tar.gz"
+    fi
+    
+    download https://github.com/$name/releases/download/$ver/$tarball
+    extract $tarball
+    
+    if is_win; then
+        install bin/gh.exe $local_bin/
+    else
+        install gh_${ver_number}_*/bin/gh $local_bin/
+    fi
 }
 
 setup_fzf() {
