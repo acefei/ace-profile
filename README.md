@@ -98,6 +98,24 @@ Run any setup function with detailed output:
    source ~/.bash_profile
    ```
 
+## Uninstallation
+
+To completely remove ace-profile and all installed tools:
+
+```bash
+cd ~/.myprofile/installer
+./uninstall.sh
+```
+
+The uninstaller will:
+- Remove all installed tools from `~/.local/bin`
+- Remove Vim plugins and configuration directories
+- Restore backed up configuration files (`.bashrc`, `.bash_profile`, `.vimrc`, etc.)
+- Clean up fzf, nvm, and other tool installations
+- Remove the `~/.myprofile` directory
+
+**Note**: You'll be prompted for confirmation before any files are removed.
+
 ## Directory Structure
 
 ```
