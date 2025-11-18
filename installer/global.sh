@@ -138,3 +138,20 @@ install_with_spinner() {
         return 1
     fi
 }
+
+safe_remove() {
+    local path=$1
+    local desc=$2
+    if [ -e "$path" ]; then
+        echo "  Removing $desc..."
+        rm -rf "$path"
+    fi
+}
+
+restore_backup() {
+    local file=$1
+    if [ -e "${file}.backup" ]; then
+        echo "  Restoring ${file} from backup..."
+        mv "${file}.backup" "$file"
+    fi
+}
