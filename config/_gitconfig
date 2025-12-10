@@ -35,11 +35,12 @@
     cmn = commit -a -s --amend --no-edit
     pf = push --force-with-lease
     pr = pull --rebase
-    parent = !git reflog | grep "to $(git branch --show-current)" | head -1 | awk '{print $6}'
-    rb =  rebase "$(git parent)"
+    parent = "!git reflog | grep \"to $(git branch --show-current)\" | head -1 | awk '{print $6}'"
+    rb =  !git rebase "$(git parent)"
     rbm = !git fetch --prune && git rebase origin/master --signoff
     rbi = !git rebase -i $(git merge-base --fork-point origin/HEAD HEAD) --signoff
     rbc = !git add -A && git rebase --continue
+    rba = rebase --abort
 
 # Get the current branch name
 branch-name = "!git rev-parse --abbrev-ref HEAD"
