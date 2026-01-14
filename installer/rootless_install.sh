@@ -35,6 +35,7 @@ config_git() {
 
     [ -e $gitconfig ] && mv ${gitconfig}{,.backup}
     ln -sf $config/_gitconfig $gitconfig
+    ln -sf $config/_gitignore_global $HOME/.gitignore_global
 }
 
 config_profile() {
@@ -226,10 +227,10 @@ setup_syncthing() (
     install syncthing-linux-amd64-$ver/syncthing $local_bin/
 
     # Setup user systemd service
-    cp $config/syncthing.service $service_dir/
+    download https://raw.githubusercontent.com/$name/refs/heads/main/etc/linux-systemd/user/syncthing.service $service_dir/syncthing.service
+    sed -i "s|/usr/bin/syncthing|$local_bin/syncthing|" $service_dir/syncthing.service
     systemctl --user daemon-reload
     systemctl --user enable syncthing.service
-    systemctl --user start syncthing.service
 )
 
 _main() {

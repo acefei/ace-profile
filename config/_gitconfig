@@ -64,3 +64,4 @@ unpublish = "!git push origin :$(git branch-name)"
 
 [core]
 	whitespace = cr-at-eol
+	excludesfile = ~/.gitignore_global
