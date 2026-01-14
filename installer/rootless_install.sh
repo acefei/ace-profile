@@ -95,7 +95,7 @@ setup_gitui() {
     { is_win || is_mac; } && return
     work_in_temp_dir
     local name="gitui-org/gitui"
-    local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
+    local ver=$(latest_in_github_release $name)
     download https://github.com/$name/releases/download/$ver/gitui-linux-x86_64.tar.gz
     extract gitui-linux-x86_64.tar.gz
     install gitui $local_bin/
@@ -105,7 +105,7 @@ setup_rg() {
     { is_win || is_mac; } && return
     work_in_temp_dir
     local name="BurntSushi/ripgrep"
-    local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
+    local ver=$(latest_in_github_release $name)
     download https://github.com/$name/releases/download/$ver/ripgrep-$ver-x86_64-unknown-linux-musl.tar.gz
     extract ripgrep*.tar.gz
     install ripgrep-*/rg $local_bin/
@@ -114,7 +114,7 @@ setup_rg() {
 setup_gh() {
     work_in_temp_dir
     local name="cli/cli"
-    local ver=$(latest_in_github_release "https://github.com/$name/releases/latest")
+    local ver=$(latest_in_github_release $name)
     local ver_number=${ver##v}
     local tarball
     
@@ -167,8 +167,9 @@ setup_uv() (
 setup_nvm() (
     is_win && return
     work_in_temp_dir
-    local ver=$(latest_in_github_release "https://github.com/nvm-sh/nvm/releases/latest")
-    curl_install https://raw.githubusercontent.com/nvm-sh/nvm/${ver}/install.sh
+    local name="nvm-sh/nvm"
+    local ver=$(latest_in_github_release $name)
+    curl_install https://raw.githubusercontent.com/$name/${ver}/install.sh
 )
 
 setup_go() (
@@ -192,16 +193,18 @@ setup_terraform() (
 setup_sops() (
     { is_win || is_mac; } && return
     work_in_temp_dir
-    local ver=$(latest_in_github_release "https://github.com/mozilla/sops/releases/latest")
-    download https://github.com/mozilla/sops/releases/download/$ver/sops-$ver.linux.amd64
+    local name="mozilla/sops"
+    local ver=$(latest_in_github_release $name)
+    download https://github.com/$name/releases/download/$ver/sops-$ver.linux.amd64
     install sops-* $local_bin/sops
 )
 
 setup_age() (
     { is_win || is_mac; } && return
     work_in_temp_dir
-    local ver=$(latest_in_github_release "https://github.com/FiloSottile/age/releases/latest")
-    download https://github.com/FiloSottile/age/releases/download/$ver/age-$ver-linux-amd64.tar.gz
+    local name="FiloSottile/age"
+    local ver=$(latest_in_github_release $name)
+    download https://github.com/$name/releases/download/$ver/age-$ver-linux-amd64.tar.gz
     extract age*.tar.gz
     install -D age/age* $local_bin
 )
@@ -213,6 +216,21 @@ setup_fpp() (
     ln -sf $dest_path/fpp $local_bin/fpp
 )
 
+setup_syncthing() (
+    { is_win || is_mac; } && return
+    work_in_temp_dir
+    local name="syncthing/syncthing"
+    local ver=$(latest_in_github_release $name)
+    download https://github.com/$name/releases/download/$ver/syncthing-linux-amd64-$ver.tar.gz
+    extract syncthing-linux-amd64-$ver.tar.gz
+    install syncthing-linux-amd64-$ver/syncthing $local_bin/
+
+    # Setup user systemd service
+    cp $config/syncthing.service $service_dir/
+    systemctl --user daemon-reload
+    systemctl --user enable syncthing.service
+    systemctl --user start syncthing.service
+)
 
 _main() {
     # Run config functions first (sequentially)

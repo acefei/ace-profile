@@ -15,6 +15,8 @@ sshconfig=$HOME/.ssh/config
 local_dir=$HOME/.local
 local_bin=$local_dir/bin
 mkdir -p $local_bin
+service_dir=$HOME/.config/systemd/user
+mkdir -p $service_dir
 git_clone='git clone -q --depth=1 '
 
 check_command() {
@@ -43,7 +45,7 @@ work_in_temp_dir() {
 }
 
 latest_in_github_release() {
-    local latest_version=$(basename `curl -w "%{redirect_url}" -s $1`)
+    local latest_version=$(basename `curl -w "%{redirect_url}" -s https://github.com/$1/releases/latest`)
     printf "$latest_version"
 }
 
