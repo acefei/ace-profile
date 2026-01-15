@@ -237,73 +237,6 @@ function Set-TimeZoneChina {
     }
 }
 
-function Install-Syncthing {
-    Write-Host "Installing Syncthing..." -ForegroundColor Yellow
-    
-    $installDir = "$env:LOCALAPPDATA\Syncthing"
-    $syncthingExe = "$installDir\syncthing.exe"
-    $taskName = "Syncthing"
-    
-    # Check if already installed as scheduled task
-    $existingTask = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
-    if ($existingTask) {
-        Write-Host "  Syncthing task already exists." -ForegroundColor Green
-        return
-    }
-    
-    # Get latest version from GitHub
-    Write-Host "  Fetching latest version..." -ForegroundColor Yellow
-    $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/syncthing/syncthing/releases/latest"
-    $version = $latestRelease.tag_name
-    $downloadUrl = $latestRelease.assets | Where-Object { $_.name -like "syncthing-windows-amd64-*.zip" } | Select-Object -ExpandProperty browser_download_url
-    
-    if (-not $downloadUrl) {
-        throw "Could not find Syncthing Windows download URL"
-    }
-    
-    # Download and extract
-    Write-Host "  Downloading $version..." -ForegroundColor Yellow
-    $zipFile = "$env:TEMP\syncthing.zip"
-    Invoke-WebRequest -Uri $downloadUrl -OutFile $zipFile
-    
-    Write-Host "  Extracting..." -ForegroundColor Yellow
-    if (Test-Path $installDir) {
-        # Stop any running syncthing process before removing
-        Stop-Process -Name "syncthing" -Force -ErrorAction SilentlyContinue
-        Start-Sleep -Seconds 2
-        Remove-Item -Path $installDir -Recurse -Force
-    }
-    Expand-Archive -Path $zipFile -DestinationPath $env:TEMP -Force
-    
-    # Move to install directory
-    $extractedDir = Get-ChildItem -Path $env:TEMP -Directory -Filter "syncthing-windows-amd64-*" | Select-Object -First 1
-    Move-Item -Path $extractedDir.FullName -Destination $installDir -Force
-    
-    Remove-Item $zipFile -Force
-    
-    # Create scheduled task to run at logon
-    Write-Host "  Creating scheduled task..." -ForegroundColor Yellow
-    $action = New-ScheduledTaskAction -Execute $syncthingExe -Argument "serve --no-browser --no-restart"
-    $trigger = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
-    $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
-    $principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Limited
-    
-    Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Description "Syncthing - Open Source Continuous File Synchronization" | Out-Null
-    
-    # Start the task now
-    Write-Host "  Starting Syncthing..." -ForegroundColor Yellow
-    Start-ScheduledTask -TaskName $taskName
-    
-    # Add firewall rule
-    Write-Host "  Configuring firewall..." -ForegroundColor Yellow
-    $firewallRule = Get-NetFirewallRule -DisplayName "Syncthing" -ErrorAction SilentlyContinue
-    if (-not $firewallRule) {
-        New-NetFirewallRule -DisplayName "Syncthing" -Direction Inbound -Program $syncthingExe -Action Allow -Profile Private,Domain | Out-Null
-    }
-    
-    Write-Host "  OK - Web UI: http://localhost:8384" -ForegroundColor Green
-}
-
 function Setup-Ssh {
     Write-Host "Configuring SSH for Git..." -ForegroundColor Yellow
     
@@ -354,9 +287,6 @@ function Main {
         Write-Host ""
 
         Set-TimeZoneChina
-        Write-Host ""
-
-        Install-Syncthing
         Write-Host ""
         
         # --- Success Message ---

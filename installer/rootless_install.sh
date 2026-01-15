@@ -217,22 +217,6 @@ setup_fpp() (
     ln -sf $dest_path/fpp $local_bin/fpp
 )
 
-setup_syncthing() (
-    { is_win || is_mac; } && return
-    work_in_temp_dir
-    local name="syncthing/syncthing"
-    local ver=$(latest_in_github_release $name)
-    download https://github.com/$name/releases/download/$ver/syncthing-linux-amd64-$ver.tar.gz
-    extract syncthing-linux-amd64-$ver.tar.gz
-    install syncthing-linux-amd64-$ver/syncthing $local_bin/
-
-    # Setup user systemd service
-    download https://raw.githubusercontent.com/$name/refs/heads/main/etc/linux-systemd/user/syncthing.service $service_dir/syncthing.service
-    sed -i "s|/usr/bin/syncthing|$local_bin/syncthing|" $service_dir/syncthing.service
-    systemctl --user daemon-reload
-    systemctl --user enable syncthing.service
-)
-
 _main() {
     # Run config functions first (sequentially)
     local config_functions=$(declare -F | cut -d' ' -f3 | grep "config_")
