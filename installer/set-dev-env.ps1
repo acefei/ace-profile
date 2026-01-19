@@ -276,6 +276,9 @@ function Main {
         Install-App -AppName "NodeJS (LTS)" -AppId "OpenJS.NodeJS.LTS"
         Write-Host ""
         
+        Install-App -AppName "SSHFS-Win" -AppId "SSHFS-Win.SSHFS-Win"
+        Write-Host ""
+        
         # --- Configure Environment ---
         Refresh-Env
         Write-Host ""

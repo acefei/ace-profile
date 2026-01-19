@@ -12,6 +12,7 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias c='clear'
+alias cdg='cd $(git rev-parse --show-toplevel)'
 alias dri='docker run -it -v $(pwd):/app -w /app'
 alias dr='docker run --rm -v $(pwd):/app -w /app'
 
