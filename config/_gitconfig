@@ -15,42 +15,87 @@
     default = simple
 
 [alias]
-    up = !sh -c 'git pull --rebase && git push'
+    # Sync: pull with rebase then push
+    up = !git pull --rebase && git push
+    
+    # Log: show last 5 commits in oneline format
     lo = log --oneline -5
+    # Log: show last 10 commits with graph and branch decorations
+    lg = log --oneline --graph --decorate -10
+    
+    # Shortcuts
     co = checkout
     cob = checkout -b
     br = branch
     brv = branch -vv
     st = status
     rmv = remote -vv
-
+    
+    # Branch: get current branch name
+    branch-name = rev-parse --abbrev-ref HEAD
+    # Branch: delete all local branches that have been merged (except main/master)
+    brd = !git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d
+    
+    # Diff: show staged changes
     dc = diff --cached
+    # Diff: show staged file names only
     dcf = diff --name-only --cached
+    # Diff: show last commit changes
     dp = diff HEAD^
+    # Diff: show last commit file names only
     dpf = diff --name-only HEAD^
+    
+    # Commit: commitizen with sign-off
     czs = cz -a -s
+    # Commit: add all and sign-off
     cm = commit -a -s
+    # Commit: add all, sign-off with message
     cmm = commit -a -s -m
+    # Commit: amend last commit with sign-off
     cma = commit -a -s --amend
+    # Commit: amend last commit without editing message
     cmn = commit -a -s --amend --no-edit
+    
+    # Push: force push with lease (safer than --force)
     pf = push --force-with-lease
+    # Pull: with rebase
     pr = pull --rebase
+    # Push: push current branch to origin and set upstream tracking
+    publish = !git push -u origin $(git branch-name)
+    # Push: delete remote branch
+    unpublish = !git push origin :$(git branch-name)
+    
+    # Rebase: find parent branch from reflog
     parent = "!git reflog | grep \"to $(git branch --show-current)\" | head -1 | awk '{print $6}'"
-    rb =  !git rebase "$(git parent)"
+    # Rebase: onto parent branch
+    rb = !git rebase "$(git parent)"
+    # Rebase: fetch and rebase onto origin/master with sign-off
     rbm = !git fetch --prune && git rebase origin/master --signoff
+    # Rebase: interactive rebase from fork point with sign-off
     rbi = !git rebase -i $(git merge-base --fork-point origin/HEAD HEAD) --signoff
+    # Rebase: add all changes and continue rebase
     rbc = !git add -A && git rebase --continue
+    # Rebase: abort current rebase
     rba = rebase --abort
-
-# Get the current branch name
-branch-name = "!git rev-parse --abbrev-ref HEAD"
-
-# Push the current branch to the remote "origin", and set it to track
-# the upstream branch
-publish = "!git push -u origin $(git branch-name)"
-
-# Delete the remote version of the current branch
-unpublish = "!git push origin :$(git branch-name)"
+    
+    # Reset: fetch and hard reset to remote branch (sync with remote)
+    rs = !git fetch && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD)
+    # Reset: undo last commit but keep changes staged
+    undo = reset --soft HEAD^
+    
+    # Stash: save with message
+    ss = stash push -m
+    # Stash: pop last stash
+    sp = stash pop
+    # Stash: list all stashes
+    sl = stash list
+    
+    # Clean: remove untracked files/dirs and discard all changes
+    nuke = !git clean -fd && git checkout -- .
+    
+    # WIP: quick save/restore work in progress
+    wip = !git add -A && git commit -m 'WIP [skip ci]'
+    unwip = !git log -1 --format='%s' | grep -q 'WIP' && git reset HEAD^
 
 [filter "lfs"]
 	clean = git-lfs clean -- %f
