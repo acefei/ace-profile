@@ -1,4 +1,2 @@
-# Syncthing
-.stfolder/
-.stignore
-.stversions/
+# github copilot
+.github/

@@ -83,8 +83,8 @@
     # Reset: undo last commit but keep changes staged
     undo = reset --soft HEAD^
     
-    # Stash: save with message
-    ss = stash push -m
+    # Stash: save
+    ss = stash
     # Stash: pop last stash
     sp = stash pop
     # Stash: list all stashes
@@ -93,10 +93,6 @@
     # Clean: remove untracked files/dirs and discard all changes
     nuke = !git clean -fd && git checkout -- .
     
-    # WIP: quick save/restore work in progress
-    wip = !git add -A && git commit -m 'WIP [skip ci]'
-    unwip = !git log -1 --format='%s' | grep -q 'WIP' && git reset HEAD^
-
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
