@@ -41,6 +41,11 @@ config_git() {
 config_profile() {
     echo > $profile
     tee -a $profile >/dev/null <<-'EOF'
+case $- in
+  *i*) ;; # interactive shell
+  *) return ;; # non-interactive: skip rest
+esac
+
 # To free the shortcuts Ctrl+s and Ctrl+q
 stty start undef
 
