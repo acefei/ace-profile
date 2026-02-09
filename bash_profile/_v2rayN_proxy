@@ -1,0 +1,31 @@
+# Setting on Windows: 
+# 1. Configure V2rayN to allow LAN connections.
+# 2. Firewall exception trust to allow V2rayN access 
+#    for both public and private networks in the Windows firewall!
+
+
+# Usage: source v2rayN_proxy
+#        proxy # to enable proxy
+#        unproxy # to disable proxy
+export hostip=$(ip route | grep default | awk '{print $3}' | head -1)
+export hostport=10808
+
+alias proxy='
+    export https_proxy="http://${hostip}:${hostport}";
+    export http_proxy="http://${hostip}:${hostport}";
+    export all_proxy="http://${hostip}:${hostport}";
+    git config --global http.proxy "http://${hostip}:${hostport}"
+    git config --global https.proxy "http://${hostip}:${hostport}"
+    echo -e "Acquire::http::Proxy \"http://${hostip}:${hostport}\";" | sudo tee -a /etc/apt/apt.conf.d/proxy.conf > /dev/null;
+    echo -e "Acquire::https::Proxy \"http://${hostip}:${hostport}\";" | sudo tee -a /etc/apt/apt.conf.d/proxy.conf > /dev/null;
+'
+
+alias unproxy='
+    unset https_proxy;
+    unset http_proxy;
+    unset all_proxy;
+    git config --global --unset http.proxy
+    git config --global --unset https.proxy
+    sudo sed -i -e '/Acquire::http::Proxy/d' /etc/apt/apt.conf.d/proxy.conf;
+    sudo sed -i -e '/Acquire::https::Proxy/d' /etc/apt/apt.conf.d/proxy.conf;
+'
