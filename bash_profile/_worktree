@@ -4,20 +4,12 @@
 # ============================================================================
 # Simple Aliases
 # ============================================================================
-
 # List all worktrees
-alias wt-list='git worktree list'
-
+alias wtl='git worktree list'
 # Jump to main/primary worktree (first in list)
-alias wt-main='cd $(git worktree list | head -1 | cut -d" " -f1)'
-
+alias wtm='cd $(git worktree list | head -1 | cut -d" " -f1)'
 # Prune stale worktree entries
-alias wt-prune='git worktree prune -v'
-
-# Lock/unlock worktrees to prevent deletion
-alias wt-lock='git worktree lock'
-alias wt-unlock='git worktree unlock'
-
+alias wtp='git worktree prune -v'
 _wt_help() {
     local doc="$HOME/.myprofile/docs/git-worktree.md"
     if [ -f "$doc" ]; then
@@ -31,111 +23,91 @@ alias wt-help='_wt_help'
 # ============================================================================
 # Worktree Management Functions
 # ============================================================================
-
 # Create worktree for existing or new branch
-# Usage: wt_create <branch> [path] [base-branch]
-# Default path: <repo-root>/.git-worktree/<branch-name>
-# Default base (when creating new branch): current branch
+# Usage: wtc <branch> [path] [base-branch]
 _wt_create() {
-    local branch=${1:?Usage: $FUNCNAME <branch> [path] [base-branch]}
-    local repo_root path base branch_exists
-
-    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    local branch=${1:?Usage: wtc <branch> [path] [base-branch]}
+    local repo_root path base target_commit reply
+    
+    # Resolve git repo root
+    repo_root=$(git rev-parse --git-common-dir 2>/dev/null) || {
         echo "Not a git repository."
         return 1
     }
+    repo_root=$(cd "$repo_root/.." && pwd -P)
     path=${2:-"$repo_root/.git-worktree/$branch"}
     mkdir -p "$(dirname "$path")"
-
-    branch_exists=0
-    if git show-ref --verify --quiet "refs/heads/$branch" \
-        || git show-ref --verify --quiet "refs/remotes/$branch" \
-        || git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
-        branch_exists=1
+    
+    # Log current state
+    local current=$(git symbolic-ref --short -q HEAD 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+    echo "From: $current@$(git rev-parse --short HEAD 2>/dev/null), Worktree: $path"
+    
+    # Determine if branch exists and resolve base
+    if git show-ref --verify --quiet "refs/heads/$branch" 2>/dev/null \
+        || git show-ref --verify --quiet "refs/remotes/origin/$branch" 2>/dev/null; then
+        base="$branch"
+        target_commit=$(git rev-parse --short "$base" 2>/dev/null || echo "unknown")
+        echo "Using existing branch: $branch@$target_commit"
+        read -r -p "Create worktree at '$path' from '$branch@$target_commit'? [y/N] " reply
+        [[ "$reply" =~ ^(y|Y|yes|YES)$ ]] || { echo "Canceled."; return 1; }
+        git worktree add "$path" "$branch" && echo "✓ Created" || return 1
+    else
+        if [ -n "$3" ]; then
+            base=$3
+        elif [ "$current" != "HEAD" ] && [ "$current" != "unknown" ]; then
+            base=$current
+        else
+            base=HEAD
+        fi
+        target_commit=$(git rev-parse --short "$base" 2>/dev/null || echo "unknown")
+        echo "Creating new branch: $branch from $base@$target_commit"
+        read -r -p "Create worktree at '$path' with new branch '$branch' from '$base@$target_commit'? [y/N] " reply
+        [[ "$reply" =~ ^(y|Y|yes|YES)$ ]] || { echo "Canceled."; return 1; }
+        git worktree add -b "$branch" "$path" "$base" && echo "✓ Created" || return 1
     fi
-
-    if [ "$branch_exists" -eq 1 ]; then
-        echo "Creating worktree for existing branch '$branch' at '$path'..."
-        git worktree add "$path" "$branch"
-        return $?
-    fi
-
-    if [ -n "$3" ]; then
-        base=$3
-        echo "Creating new branch '$branch' in worktree at '$path' (based on $base)..."
-        git worktree add -b "$branch" "$path" "$base"
-        return $?
-    fi
-
-    read -r -p "Branch '$branch' not found. Create new? [y/N] " reply
-    case "$reply" in
-        y|Y|yes|YES)
-            base=${3:-HEAD}
-            echo "Creating new branch '$branch' in worktree at '$path' (based on $base)..."
-            git worktree add -b "$branch" "$path" "$base"
-            ;;
-        *)
-            echo "Canceled."
-            return 1
-            ;;
-    esac
 }
-alias wt-add='_wt_create'
+alias wtc='_wt_create'
 
-# Interactive worktree removal with FZF (batch capable)
-# Select multiple worktrees with TAB, then remove them
+# Interactive FZF batch removal
 _wt_remove_interactive() {
-    local worktrees=$(git worktree list | tail -n +2 | fzf -m --height=40% --reverse --border \
-        --header="Select worktrees to remove (TAB to select multiple, ENTER to confirm)" | awk '{print $1}')
+    local worktrees repo_root
+    worktrees=$(git worktree list | tail -n +2 | \
+        fzf -m --height=40% --reverse --border \
+        --header="Select worktrees to remove (TAB for multi-select)" | awk '{print $1}')
     
-    if [ -z "$worktrees" ]; then
-        echo "No worktrees selected."
-        return 0
-    fi
+    [ -z "$worktrees" ] && { echo "No selection."; return 0; }
     
-    echo "Removing selected worktrees..."
-    echo "$worktrees" | while read -r path; do
-        echo "  Removing: $path"
-        git worktree remove "$path" &
-    done
-    wait
+    repo_root=$(git rev-parse --git-common-dir 2>/dev/null) || return 1
+    repo_root=$(cd "$repo_root/.." && pwd -P)
+    cd "$repo_root" || return 1
     
-    echo "✓ Worktree removal complete"
-    git worktree prune -v
+    echo "Removing $(echo "$worktrees" | wc -l) worktree(s)..."
+    echo "$worktrees" | xargs -I {} git worktree remove {} && echo "✓ Done" && git worktree prune -v
 }
 
-# Remove worktree
-# Usage: wt_remove [path] [-f|--force]
-# If no path is provided, run interactive removal
-# Use --force to remove even if worktree is dirty or locked
+# Remove single worktree (with optional force)
+# Usage: wtd [path] [-f|--force]
 _wt_remove() {
-    if [ -z "$1" ]; then
-        _wt_remove_interactive
-        return $?
-    fi
-
-    local path=$1
-    local force_flag=""
+    [ -z "$1" ] && { _wt_remove_interactive; return $?; }
     
-    # Check for force flag
-    if [[ "$2" == "-f" || "$2" == "--force" ]]; then
-        force_flag="--force"
-    fi
+    local path=$1 force_flag repo_root path_abs
+    local force_flag=$([ "$2" = "-f" ] || [ "$2" = "--force" ] && echo "--force" || echo "")
     
-    echo "Removing worktree at '$path'..."
-    git worktree remove $force_flag "$path"
+    repo_root=$(git rev-parse --git-common-dir 2>/dev/null) || return 1
+    repo_root=$(cd "$repo_root/.." && pwd -P)
+    path_abs=$([[ "$path" = /* ]] && echo "$path" || echo "$(pwd -P)/$path")
+    
+    echo "Removing: $path_abs"
+    cd "$repo_root" || return 1
+    git worktree remove $force_flag "$path_abs" && echo "✓ Removed"
 }
-alias wt-rm='_wt_remove'
+alias wtd='_wt_remove'
 
 # ============================================================================
 # Interactive FZF Functions
 # ============================================================================
-
-# Jump to any worktree using FZF selector
+# Jump to worktree via FZF
 wtgo() {
     local worktree=$(git worktree list | fzf --height=40% --reverse --border | awk '{print $1}')
-    if [ -n "$worktree" ]; then
-        echo "Switching to: $worktree"
-        cd "$worktree"
-    fi
+    [ -n "$worktree" ] && { echo "Switching to: $worktree"; cd "$worktree"; } || echo "No selection."
 }

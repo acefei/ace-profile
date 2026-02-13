@@ -87,6 +87,8 @@
     ss = stash
     # Stash: pop last stash
     sp = stash pop
+    # Stash: drop last stash
+    sd = stash drop
     # Stash: list all stashes
     sl = stash list
     

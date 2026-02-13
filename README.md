@@ -74,13 +74,21 @@ wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/main/installer/in
 Quickly manage multiple git worktrees for parallel branch development:
 
 ```bash
-wt-list          # List all worktrees
-wt-main          # Jump to main worktree
+wtl              # List all worktrees
+wtm              # Jump to main worktree
 wtgo             # Interactive worktree selector (FZF)
-wt-add <branch>  # Create worktree from existing branch
-wt-new <branch>  # Create worktree with new branch
-wt-rm <path>     # Remove worktree
-wt-rmi           # Batch remove with FZF
+wtc <branch>     # Create worktree with new branch
+wtd <path>       # Remove worktree (runs from git common root)
+wtd              # Batch remove with FZF
+wtp              # Prune stale worktree entries
+wt-help          # Open worktree help doc
+```
+
+Useful directory shortcuts:
+
+```bash
+cdg              # Go to current repo/worktree root (show-toplevel)
+cdgc             # Go to git common root (worktree parent)
 ```
 
 📖 **[Full Git Worktree Documentation](docs/git-worktree.md)** - Detailed usage, workflows, and best practices
