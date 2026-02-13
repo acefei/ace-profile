@@ -13,10 +13,15 @@ wtgo             # Interactive FZF selector to jump to any worktree
 
 ### Creating Worktrees
 ```bash
-wt-add <branch>                    # Create worktree from existing branch at <repo>/.git-worktree/<branch>
+wt-add <branch> [path] [base]      # Create worktree; if base is set, create new branch
 wt-add feature-x ~/projects/feat-x # Create worktree at custom path
-wt-new <branch> [path] [base]      # Create new branch in worktree
+wt-new <branch> [path] [base]      # Alias of wt-add
 ```
+
+Notes:
+- If the branch exists, `wt-add` uses it without `-b`.
+- If the branch does not exist, you will be prompted to create it.
+- If three args are provided, a new branch is created using the base.
 
 ### Removing Worktrees
 ```bash
