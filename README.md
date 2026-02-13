@@ -7,7 +7,8 @@ A unified shell environment configuration and development tools installer for Li
 ### 🎨 Shell Configuration
 - **Bash profile** with custom aliases, functions, and prompt
 - **Git integration** with completion and prompt support
-- **FZF integration** for enhanced command-line searching
+- **Git worktree management** - tools for working with multiple branches simultaneously ([docs](docs/git-worktree.md))
+- **FZF integration** for enhanced command-line searching ([docs](docs/fzf-functions.md))
 - **Tmux configuration** for terminal multiplexing
 - **Vim configuration** with plugin management
 
@@ -67,6 +68,36 @@ wget -qO- https://raw.githubusercontent.com/acefei/ace-profile/main/installer/in
 ```
 
 ## Usage
+
+### Git Worktree Management
+
+Quickly manage multiple git worktrees for parallel branch development:
+
+```bash
+wt-list          # List all worktrees
+wt-main          # Jump to main worktree
+wtgo             # Interactive worktree selector (FZF)
+wt-add <branch>  # Create worktree from existing branch
+wt-new <branch>  # Create worktree with new branch
+wt-rm <path>     # Remove worktree
+wt-rmi           # Batch remove with FZF
+```
+
+📖 **[Full Git Worktree Documentation](docs/git-worktree.md)** - Detailed usage, workflows, and best practices
+
+### FZF Helpers
+
+FZF-powered helpers for git, processes, SSH, and ports:
+
+```bash
+fzco   # Checkout git branch via FZF
+fzpk   # Kill selected processes (FZF multi-select)
+fzproc # Inspect a process (ps + lsof)
+fzssh  # Select SSH host and connect
+fzport # Inspect listening ports
+```
+
+📖 **[Full FZF Helpers Documentation](docs/fzf-functions.md)**
 
 ### Running Specific Setup Functions
 

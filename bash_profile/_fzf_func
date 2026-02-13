@@ -8,3 +8,116 @@ git_checkout() {
   git checkout "${branch%% *}" || return 1
 }
 alias fzco=git_checkout
+
+killps() {
+  local query="$1"
+  local ps_list selection pids
+
+  if [ -n "$query" ]; then
+    ps_list=$(ps -u "$USER" -o pid=,comm=,args= | grep -i -- "$query")
+  else
+    ps_list=$(ps -u "$USER" -o pid=,comm=,args=)
+  fi
+
+  if [ -z "$ps_list" ]; then
+    echo "No processes found."
+    return 0
+  fi
+
+  selection=$(printf "%s\n" "$ps_list" | fzf -m --height=40% --reverse --border \
+    --header="Select processes to kill (TAB multi, ENTER confirm)")
+
+  if [ -z "$selection" ]; then
+    echo "No selection."
+    return 0
+  fi
+
+  pids=$(printf "%s\n" "$selection" | awk '{print $1}')
+  echo "$pids" | xargs kill
+}
+alias fzpk=killps
+
+fzssh() {
+  local ssh_hosts config_hosts known_hosts selected
+
+  config_hosts=$(awk '/^Host[[:space:]]+/ {for (i=2; i<=NF; i++) if ($i !~ /[\*\?]/) print $i}' ~/.ssh/config ~/.ssh/config.d/* 2>/dev/null)
+  known_hosts=$(awk -F'[ ,]' '$1 !~ /^\|/ {gsub(/^\[/, "", $1); gsub(/\](:[0-9]+)?$/, "", $1); print $1}' ~/.ssh/known_hosts 2>/dev/null)
+  ssh_hosts=$(printf "%s\n%s\n" "$config_hosts" "$known_hosts" | sed '/^$/d' | sort -u)
+
+  if [ -z "$ssh_hosts" ]; then
+    echo "No SSH hosts found."
+    return 0
+  fi
+
+  selected=$(printf "%s\n" "$ssh_hosts" | fzf --height=40% --reverse --border --prompt="ssh > ")
+  if [ -z "$selected" ]; then
+    echo "No selection."
+    return 0
+  fi
+
+  ssh "$selected"
+}
+alias fzssh=fzssh
+
+fzproc() {
+  local ps_list selection pid
+
+  ps_list=$(ps -u "$USER" -o pid=,comm=,args=)
+  if [ -z "$ps_list" ]; then
+    echo "No processes found."
+    return 0
+  fi
+
+  selection=$(printf "%s\n" "$ps_list" | fzf --height=40% --reverse --border \
+    --header="Select a process to inspect")
+  if [ -z "$selection" ]; then
+    echo "No selection."
+    return 0
+  fi
+
+  pid=$(printf "%s\n" "$selection" | awk '{print $1}')
+  if [ -z "$pid" ]; then
+    echo "No PID found."
+    return 1
+  fi
+
+  ps -p "$pid" -o pid=,ppid=,etime=,command=
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -p "$pid"
+  else
+    echo "lsof not found; skipping open file listing."
+  fi
+}
+alias fzproc=fzproc
+
+fzport() {
+  local port_list selection pid
+
+  if ! command -v lsof >/dev/null 2>&1; then
+    echo "lsof not found; fzport requires lsof."
+    return 1
+  fi
+
+  port_list=$(lsof -iTCP -sTCP:LISTEN -Pn | tail -n +2)
+  if [ -z "$port_list" ]; then
+    echo "No listening ports found."
+    return 0
+  fi
+
+  selection=$(printf "%s\n" "$port_list" | fzf --height=40% --reverse --border \
+    --header="Select a listening port to inspect")
+  if [ -z "$selection" ]; then
+    echo "No selection."
+    return 0
+  fi
+
+  pid=$(printf "%s\n" "$selection" | awk '{print $2}')
+  if [ -z "$pid" ]; then
+    echo "No PID found."
+    return 1
+  fi
+
+  ps -p "$pid" -o pid=,ppid=,etime=,command=
+  lsof -p "$pid"
+}
+alias fzpt=fzport

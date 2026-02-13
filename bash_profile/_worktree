@@ -1,0 +1,116 @@
+# Git Worktree Management
+# Quick navigation and management of git worktrees
+
+# ============================================================================
+# Simple Aliases
+# ============================================================================
+
+# List all worktrees
+alias wt-list='git worktree list'
+
+# Jump to main/primary worktree (first in list)
+alias wt-main='cd $(git worktree list | head -1 | cut -d" " -f1)'
+
+# Prune stale worktree entries
+alias wt-prune='git worktree prune -v'
+
+# Lock/unlock worktrees to prevent deletion
+alias wt-lock='git worktree lock'
+alias wt-unlock='git worktree unlock'
+
+# ============================================================================
+# Worktree Management Functions
+# ============================================================================
+
+# Create worktree for existing branch
+# Usage: wt_create <branch> [path]
+# Default path: <repo-root>/.git-worktree/<branch-name>
+wt_create() {
+    local branch=${1:?Usage: $FUNCNAME <branch> [path]}
+    local repo_root path
+
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        echo "Not a git repository."
+        return 1
+    }
+    path=${2:-"$repo_root/.git-worktree/$branch"}
+    mkdir -p "$(dirname "$path")"
+    
+    echo "Creating worktree for branch '$branch' at '$path'..."
+    git worktree add "$path" "$branch"
+}
+alias wt-add='wt_create'
+
+# Create worktree with new branch
+# Usage: wt_create_new <new-branch> [path] [base-branch]
+# Default path: <repo-root>/.git-worktree/<branch-name>
+# Default base: current branch
+wt_create_new() {
+    local branch=${1:?Usage: $FUNCNAME <new-branch> [path] [base-branch]}
+    local repo_root path
+
+    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+        echo "Not a git repository."
+        return 1
+    }
+    path=${2:-"$repo_root/.git-worktree/$branch"}
+    mkdir -p "$(dirname "$path")"
+    local base=${3:-HEAD}
+    
+    echo "Creating new branch '$branch' in worktree at '$path' (based on $base)..."
+    git worktree add -b "$branch" "$path" "$base"
+}
+alias wt-new='wt_create_new'
+
+# Remove worktree
+# Usage: wt_remove <path> [-f|--force]
+# Use --force to remove even if worktree is dirty or locked
+wt_remove() {
+    local path=${1:?Usage: $FUNCNAME <path> [-f|--force]}
+    local force_flag=""
+    
+    # Check for force flag
+    if [[ "$2" == "-f" || "$2" == "--force" ]]; then
+        force_flag="--force"
+    fi
+    
+    echo "Removing worktree at '$path'..."
+    git worktree remove $force_flag "$path"
+}
+alias wt-rm='wt_remove'
+
+# ============================================================================
+# Interactive FZF Functions
+# ============================================================================
+
+# Jump to any worktree using FZF selector
+wtgo() {
+    local worktree=$(git worktree list | fzf --height=40% --reverse --border | awk '{print $1}')
+    if [ -n "$worktree" ]; then
+        echo "Switching to: $worktree"
+        cd "$worktree"
+    fi
+}
+
+# Interactive worktree removal with FZF (batch capable)
+# Select multiple worktrees with TAB, then remove them
+wt_remove_interactive() {
+    local worktrees=$(git worktree list | tail -n +2 | fzf -m --height=40% --reverse --border \
+        --header="Select worktrees to remove (TAB to select multiple, ENTER to confirm)" | awk '{print $1}')
+    
+    if [ -z "$worktrees" ]; then
+        echo "No worktrees selected."
+        return 0
+    fi
+    
+    echo "Removing selected worktrees..."
+    echo "$worktrees" | while read -r path; do
+        echo "  Removing: $path"
+        git worktree remove "$path" &
+    done
+    wait
+    
+    echo "✓ Worktree removal complete"
+    git worktree prune -v
+}
+alias wt-rmi='wt_remove_interactive'

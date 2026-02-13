@@ -57,32 +57,6 @@ alias mtz=make_tar_gz
 make_zip() { zip -r "${1%%/}.zip" "$1" ; }
 alias mz=make_zip
 
-#-------------------------------------------------------------
-# Process/system related functions:
-#-------------------------------------------------------------
-
-
-myps() { ps $@ -u $USER -o pid,%cpu,%mem,bsdtime,command ; }
-pp() { myps f | awk '!/awk/ && $0~var' var=${1:-".*"} ; }
-
-
-killps()   # kill by process name
-{
-    local pid pname sig="-TERM"   # default signal
-    if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
-        echo "Usage: killps [-SIGNAL] pattern"
-        return;
-    fi
-    if [ $# = 2 ]; then sig=$1 ; fi
-    for pid in $(my_ps| awk '!/awk/ && $0~pat { print $1 }' pat=${!#} )
-    do
-        pname=$(my_ps | awk '$1~var { print $5 }' var=$pid )
-        if ask "Kill process $pid <$pname> with signal $sig?"
-            then kill $sig $pid
-        fi
-    done
-}
-
 
 myip() # Get IP adress on ethernet.
 {
@@ -126,28 +100,14 @@ ask()  # See 'killps' for example of use.
     esac
 }
 
-corename() # Get name of app that created a corefile.
-{
-    for file ; do
-        echo -n $file : ; gdb --core=$file --batch | head -1
-    done
-}
-
-enable_ssh_agent()
+add_ssh_agent()
 {
     eval "$(ssh-agent)"
     ssh-add
 }
-alias esa=enable_ssh_agent
+alias asa=add_ssh_agent
 
-dwget()
-{
-    local url=$1
-    local cut_dirs=$(dirname $url | perl -ne 'print(split(/\//)-2)')
-    wget -r -nH --cut-dirs=$cut_dirs --no-parent --reject="index.html*" $url
-}
-
-mcd()
+cdmk()
 {
     mkdir -p $1 && cd $1
 }
@@ -237,13 +197,6 @@ prune_git_branchs() (
 )
 alias pgb=prune_git_branchs
 
-git_remote_cherry_pick() {
-    local remote_url=$1
-    local commitish=$2
-    git fetch $remote_url $commitish && git cherry-pick FETCH_HEAD
-}
-alias grcp=git_remote_cherry_pick
-
 prune_docker_image() {
     # clean none images
     docker ps -a | grep "Exited" | awk '{print $1}' | xargs docker stop
@@ -253,34 +206,3 @@ prune_docker_image() {
     docker image prune -a
 }
 alias pdi=prune_docker_image
-
-restore_staged_files() {
-    IFS=$'\n' read -r -d '' -a staged_files <<<"$(git dcf)"
-
-    echo "Select the file to restore:"
-    for i in ${!staged_files[@]}; do
-        echo "$((i+1)). ${staged_files[$i]}"
-    done
-
-    read -p "Enter your choice (0 to exit): " choice
-
-    selected_files=()
-        while [ "$choice" != "0" ]; do
-                if [ "$choice" -ge 1 ] && [ "$choice" -le "${#staged_files[@]}" ]; then
-                        selected_files+=(${staged_files[$((choice-1))]})
-                        echo "Selected: ${selected_files[@]}"
-                else
-                        echo "Invalid choice. Please try again."
-                fi
-                read -p "Enter your choice (0 to restore the selected files and exit): " choice
-        done
-
-    if [ ${#selected_files[@]} -ne 0 ];then
-        git restore --staged "${selected_files[@]}"
-        git co -- "${selected_files[@]}"
-        echo "Restored: ${selected_files[@]}"
-    fi
-
-    echo "Exiting..."
-}
-alias rsf=restore_staged_files
