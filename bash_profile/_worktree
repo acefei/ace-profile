@@ -18,7 +18,7 @@ alias wt-prune='git worktree prune -v'
 alias wt-lock='git worktree lock'
 alias wt-unlock='git worktree unlock'
 
-wt_help() {
+_wt_help() {
     local doc="$HOME/.myprofile/docs/git-worktree.md"
     if [ -f "$doc" ]; then
         cat "$doc"
@@ -26,7 +26,7 @@ wt_help() {
         echo "Doc not found: $doc"
     fi
 }
-alias wt-help='wt_help'
+alias wt-help='_wt_help'
 
 # ============================================================================
 # Worktree Management Functions
@@ -36,7 +36,7 @@ alias wt-help='wt_help'
 # Usage: wt_create <branch> [path] [base-branch]
 # Default path: <repo-root>/.git-worktree/<branch-name>
 # Default base (when creating new branch): current branch
-wt_create() {
+_wt_create() {
     local branch=${1:?Usage: $FUNCNAME <branch> [path] [base-branch]}
     local repo_root path base branch_exists
 
@@ -80,41 +80,11 @@ wt_create() {
             ;;
     esac
 }
-alias wt-add='wt_create'
-
-# Remove worktree
-# Usage: wt_remove <path> [-f|--force]
-# Use --force to remove even if worktree is dirty or locked
-wt_remove() {
-    local path=${1:?Usage: $FUNCNAME <path> [-f|--force]}
-    local force_flag=""
-    
-    # Check for force flag
-    if [[ "$2" == "-f" || "$2" == "--force" ]]; then
-        force_flag="--force"
-    fi
-    
-    echo "Removing worktree at '$path'..."
-    git worktree remove $force_flag "$path"
-}
-alias wt-rm='wt_remove'
-
-# ============================================================================
-# Interactive FZF Functions
-# ============================================================================
-
-# Jump to any worktree using FZF selector
-wtgo() {
-    local worktree=$(git worktree list | fzf --height=40% --reverse --border | awk '{print $1}')
-    if [ -n "$worktree" ]; then
-        echo "Switching to: $worktree"
-        cd "$worktree"
-    fi
-}
+alias wt-add='_wt_create'
 
 # Interactive worktree removal with FZF (batch capable)
 # Select multiple worktrees with TAB, then remove them
-wt_remove_interactive() {
+_wt_remove_interactive() {
     local worktrees=$(git worktree list | tail -n +2 | fzf -m --height=40% --reverse --border \
         --header="Select worktrees to remove (TAB to select multiple, ENTER to confirm)" | awk '{print $1}')
     
@@ -133,4 +103,39 @@ wt_remove_interactive() {
     echo "✓ Worktree removal complete"
     git worktree prune -v
 }
-alias wt-rmi='wt_remove_interactive'
+
+# Remove worktree
+# Usage: wt_remove [path] [-f|--force]
+# If no path is provided, run interactive removal
+# Use --force to remove even if worktree is dirty or locked
+_wt_remove() {
+    if [ -z "$1" ]; then
+        _wt_remove_interactive
+        return $?
+    fi
+
+    local path=$1
+    local force_flag=""
+    
+    # Check for force flag
+    if [[ "$2" == "-f" || "$2" == "--force" ]]; then
+        force_flag="--force"
+    fi
+    
+    echo "Removing worktree at '$path'..."
+    git worktree remove $force_flag "$path"
+}
+alias wt-rm='_wt_remove'
+
+# ============================================================================
+# Interactive FZF Functions
+# ============================================================================
+
+# Jump to any worktree using FZF selector
+wtgo() {
+    local worktree=$(git worktree list | fzf --height=40% --reverse --border | awk '{print $1}')
+    if [ -n "$worktree" ]; then
+        echo "Switching to: $worktree"
+        cd "$worktree"
+    fi
+}

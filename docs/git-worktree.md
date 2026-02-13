@@ -27,7 +27,7 @@ Notes:
 ```bash
 wt-rm <path>     # Remove worktree at specified path
 wt-rm <path> -f  # Force remove (even if dirty or locked)
-wt-rmi           # Interactive removal with FZF (multi-select with TAB)
+wt-rm            # Interactive removal with FZF (multi-select with TAB)
 ```
 
 ### Maintenance
@@ -77,7 +77,7 @@ wtgo  # Select with arrows, press Enter
 ### Batch Cleanup
 ```bash
 # Interactive multi-select removal
-wt-rmi  # Use TAB to select multiple, ENTER to confirm
+wt-rm  # Use TAB to select multiple, ENTER to confirm
 
 # Clean up stale entries
 wt-prune

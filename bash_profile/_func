@@ -1,22 +1,22 @@
 #-------------------------------------------------------------
 # File & strings related functions:
 #-------------------------------------------------------------
-backup_file() {
+_backup_file() {
     cp $1{,.`date +%Y%m%d`}
 }
-alias bk=backup_file
+alias bk=_backup_file
 
-move_to_backup() {
+_move_to_backup() {
     local backup_path=$HOME/backup
     mkdir -p $backup_path
     mv $* $backup_path
 }
-alias mtb=move_to_backup
+alias mtb=_move_to_backup
 
 # Find a file with a pattern in name:
 ff() { find . -type f -iname '*'"$*"'*' -ls ; }
 
-find_string()
+_find_string()
 {
     local file_pattern=$2
     if [ -z "$file_pattern" ];then
@@ -25,7 +25,7 @@ find_string()
         grep -nr "${1:?Usage: $FUNCNAME <keyword> [file_pattern]}" | grep "$file_pattern"
     fi
 }
-alias fs=find_string
+alias fs=_find_string
 
 extract()      # Handy Extract Program
 {
@@ -50,12 +50,12 @@ extract()      # Handy Extract Program
 }
 
 # Creates an archive (*.tar.gz) from given directory.
-make_tar_gz() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
-alias mtz=make_tar_gz
+_make_tar_gz() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
+alias mtz=_make_tar_gz
 
 # Create a ZIP archive of a file or folder.
-make_zip() { zip -r "${1%%/}.zip" "$1" ; }
-alias mz=make_zip
+_make_zip() { zip -r "${1%%/}.zip" "$1" ; }
+alias mz=_make_zip
 
 
 myip() # Get IP adress on ethernet.
@@ -100,12 +100,12 @@ ask()  # See 'killps' for example of use.
     esac
 }
 
-add_ssh_agent()
+_add_ssh_agent()
 {
     eval "$(ssh-agent)"
     ssh-add
 }
-alias asa=add_ssh_agent
+alias asa=_add_ssh_agent
 
 cdmk()
 {
@@ -152,7 +152,7 @@ my_branchs() {
 	done
 }
 
-prune_git_tags() (
+_prune_git_tags() (
     local tags tag
     tags=$1
 
@@ -166,9 +166,9 @@ prune_git_tags() (
     done
     wait
 )
-alias pgt=prune_git_tags
+alias pgt=_prune_git_tags
 
-prune_git_branchs() (
+_prune_git_branchs() (
     local branchs branch
 
     branchs=$1
@@ -195,9 +195,9 @@ prune_git_branchs() (
     done
     wait
 )
-alias pgb=prune_git_branchs
+alias pgb=_prune_git_branchs
 
-prune_docker_image() {
+_prune_docker_image() {
     # clean none images
     docker ps -a | grep "Exited" | awk '{print $1}' | xargs docker stop
     docker ps -a | grep "Exited" | awk '{print $1}' | xargs docker rm
@@ -205,4 +205,4 @@ prune_docker_image() {
     # clean unused images
     docker image prune -a
 }
-alias pdi=prune_docker_image
+alias pdi=_prune_docker_image

@@ -1,4 +1,4 @@
-git_checkout() {
+_git_checkout() {
   local branch_list branch 
 
   # list remote branch in descending order
@@ -7,9 +7,9 @@ git_checkout() {
   branch=$(fzf --prompt="checkout " --expect=ctrl-x <<< "$branch_list" | xargs )
   git checkout "${branch%% *}" || return 1
 }
-alias fzco=git_checkout
+alias fzco=_git_checkout
 
-killps() {
+_killps() {
   local query="$1"
   local ps_list selection pids
 
@@ -35,9 +35,9 @@ killps() {
   pids=$(printf "%s\n" "$selection" | awk '{print $1}')
   echo "$pids" | xargs kill
 }
-alias fzpk=killps
+alias fzpk=_killps
 
-fzssh() {
+_fzssh() {
   local ssh_hosts config_hosts known_hosts selected
 
   config_hosts=$(awk '/^Host[[:space:]]+/ {for (i=2; i<=NF; i++) if ($i !~ /[\*\?]/) print $i}' ~/.ssh/config ~/.ssh/config.d/* 2>/dev/null)
@@ -57,9 +57,9 @@ fzssh() {
 
   ssh "$selected"
 }
-alias fzssh=fzssh
+alias fzssh=_fzssh
 
-fzproc() {
+_fzproc() {
   local ps_list selection pid
 
   ps_list=$(ps -u "$USER" -o pid=,comm=,args=)
@@ -88,9 +88,9 @@ fzproc() {
     echo "lsof not found; skipping open file listing."
   fi
 }
-alias fzproc=fzproc
+alias fzproc=_fzproc
 
-fzport() {
+_fzport() {
   local port_list selection pid
 
   if ! command -v lsof >/dev/null 2>&1; then
@@ -120,4 +120,5 @@ fzport() {
   ps -p "$pid" -o pid=,ppid=,etime=,command=
   lsof -p "$pid"
 }
-alias fzpt=fzport
+alias fzport=_fzport
+alias fzpt=_fzport
