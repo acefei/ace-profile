@@ -1,4 +1,4 @@
-_git_checkout() {
+_fz_git_checkout() {
   local branch_list branch 
 
   # list remote branch in descending order
@@ -7,7 +7,7 @@ _git_checkout() {
   branch=$(fzf --prompt="checkout " --expect=ctrl-x <<< "$branch_list" | xargs )
   git checkout "${branch%% *}" || return 1
 }
-alias fzco=_git_checkout
+alias fzco=_fz_git_checkout
 
 _killps() {
   local query="$1"
