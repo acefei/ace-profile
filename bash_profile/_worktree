@@ -4,20 +4,12 @@
 # ============================================================================
 # Simple Aliases
 # ============================================================================
-
 # List all worktrees
-alias wt-list='git worktree list'
-
+alias wtl='git worktree list'
 # Jump to main/primary worktree (first in list)
-alias wt-main='cd $(git worktree list | head -1 | cut -d" " -f1)'
-
+alias wtm='cd $(git worktree list | head -1 | cut -d" " -f1)'
 # Prune stale worktree entries
-alias wt-prune='git worktree prune -v'
-
-# Lock/unlock worktrees to prevent deletion
-alias wt-lock='git worktree lock'
-alias wt-unlock='git worktree unlock'
-
+alias wtp='git worktree prune -v'
 _wt_help() {
     local doc="$HOME/.myprofile/docs/git-worktree.md"
     if [ -f "$doc" ]; then
@@ -31,7 +23,6 @@ alias wt-help='_wt_help'
 # ============================================================================
 # Worktree Management Functions
 # ============================================================================
-
 # Create worktree for existing or new branch
 # Usage: wt_create <branch> [path] [base-branch]
 # Default path: <repo-root>/.git-worktree/<branch-name>
@@ -40,10 +31,11 @@ _wt_create() {
     local branch=${1:?Usage: $FUNCNAME <branch> [path] [base-branch]}
     local repo_root path base branch_exists
 
-    repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    repo_root=$(git rev-parse --git-common-dir 2>/dev/null) || {
         echo "Not a git repository."
         return 1
     }
+    repo_root=$(cd "$repo_root/.." && pwd -P)
     path=${2:-"$repo_root/.git-worktree/$branch"}
     mkdir -p "$(dirname "$path")"
 
@@ -80,7 +72,7 @@ _wt_create() {
             ;;
     esac
 }
-alias wt-add='_wt_create'
+alias wtc='_wt_create'
 
 # Interactive worktree removal with FZF (batch capable)
 # Select multiple worktrees with TAB, then remove them
@@ -125,12 +117,11 @@ _wt_remove() {
     echo "Removing worktree at '$path'..."
     git worktree remove $force_flag "$path"
 }
-alias wt-rm='_wt_remove'
+alias wtd='_wt_remove'
 
 # ============================================================================
 # Interactive FZF Functions
 # ============================================================================
-
 # Jump to any worktree using FZF selector
 wtgo() {
     local worktree=$(git worktree list | fzf --height=40% --reverse --border | awk '{print $1}')

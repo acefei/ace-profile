@@ -100,6 +100,17 @@ ask()  # See 'killps' for example of use.
     esac
 }
 
+_git_help()
+{
+    local doc="$HOME/.myprofile/docs/git-alias.md"
+    if [ -f "$doc" ]; then
+        cat "$doc"
+    else
+        echo "Doc not found: $doc"
+    fi
+}
+alias git-help=_git_help
+
 _add_ssh_agent()
 {
     eval "$(ssh-agent)"

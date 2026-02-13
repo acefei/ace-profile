@@ -77,10 +77,9 @@ Quickly manage multiple git worktrees for parallel branch development:
 wt-list          # List all worktrees
 wt-main          # Jump to main worktree
 wtgo             # Interactive worktree selector (FZF)
-wt-add <branch>  # Create worktree from existing branch
-wt-new <branch>  # Create worktree with new branch
-wt-rm <path>     # Remove worktree
-wt-rmi           # Batch remove with FZF
+wtc <branch>     # Create worktree with new branch
+wtd <path>       # Remove worktree
+wtd              # Batch remove with FZF
 ```
 
 📖 **[Full Git Worktree Documentation](docs/git-worktree.md)** - Detailed usage, workflows, and best practices
