@@ -108,3 +108,5 @@
 [core]
 	whitespace = cr-at-eol
 	excludesfile = ~/.gitignore_global
+[safe]
+	directory = *

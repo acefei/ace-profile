@@ -345,7 +345,7 @@ function Invoke-Setup {
         Install-App -AppName "Visual Studio Code" -AppId "Microsoft.VisualStudioCode" -Command "code"
         Write-Host ""
         
-        Install-App -AppName "NodeJS (LTS)" -AppId "OpenJS.NodeJS.LTS" -Command "node"
+        Install-App -AppName "mise" -AppId "jdx.mise" -Command "mise"
         Write-Host ""
         
         Install-App -AppName "SSHFS-Win" -AppId "SSHFS-Win.SSHFS-Win"

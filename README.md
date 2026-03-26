@@ -19,8 +19,7 @@ The installer automatically sets up the following tools (concurrent installation
 - **GitHub CLI (gh)** - Official GitHub command-line tool
 - **fzf** - Fuzzy finder for command-line
 - **PathPicker (fpp)** - Interactive file selector
-- **uv** - Fast Python package installer
-- **nvm** - Node Version Manager
+- **mise** - Modern runtime version manager (replaces nvm, uv, and more)
 - **Go** - Go programming language
 - **Terraform** - Infrastructure as Code tool
 - **sops** - Secret operations tool

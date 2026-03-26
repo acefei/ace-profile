@@ -32,7 +32,8 @@ safe_remove "$HOME/.fzf" "fzf"
 safe_remove "$HOME/.fzf.bash" "fzf bash config"
 safe_remove "$HOME/.fzfrc" "fzf config"
 safe_remove "$HOME/.PathPicker" "PathPicker"
-safe_remove "$HOME/.nvm" "NVM"
+safe_remove "$HOME/.local/share/mise" "mise"
+safe_remove "$HOME/.config/mise" "mise config"
 
 # Remove git completion files
 safe_remove "$HOME/.git-completion.bash" "Git completion"

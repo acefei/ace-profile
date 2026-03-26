@@ -66,10 +66,8 @@ export EDITOR=vi
 [ -f ~/.fzfrc ] && source ~/.fzfrc
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-# nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh"  ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion"  ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# mise
+eval "$(mise activate bash)"
 
 EOF
 
@@ -164,18 +162,20 @@ bind -x '"\C-p": vim $(fzf);'
 EOF
 }
 
-setup_uv() (
-    is_win && return
+setup_mise() (
     work_in_temp_dir
-    curl_install https://astral.sh/uv/install.sh
-)
-
-setup_nvm() (
-    is_win && return
-    work_in_temp_dir
-    local name="nvm-sh/nvm"
-    local ver=$(latest_in_github_release $name)
-    curl_install https://raw.githubusercontent.com/$name/${ver}/install.sh
+    if is_win; then
+        local name="jdx/mise"
+        local ver=$(latest_in_github_release $name)
+        local ver_number=${ver#v}
+        download https://github.com/$name/releases/download/$ver/mise-windows-x64.zip
+        extract mise-windows-x64.zip
+        install mise.exe $local_bin/
+    elif is_mac; then
+        curl_install https://mise.run
+    else
+        curl_install https://mise.run
+    fi
 )
 
 setup_go() (
