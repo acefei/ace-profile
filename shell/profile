@@ -1,0 +1,25 @@
+# Interactive shell setup. Sourced from ~/.bash_profile and ~/.bashrc by the
+# setup-bash task, which adds one `source` line and leaves the rest of those
+# files to you.
+
+case $- in
+  *i*) ;; # interactive shell only
+  *) return ;;
+esac
+
+stty start undef
+
+export HISTSIZE=100
+export HISTFILESIZE=100
+export LC_ALL=en_US.UTF-8
+export PATH=~/.local/bin:$PATH
+export EDITOR=vi
+
+eval "$(mise activate bash)"
+
+[[ -f ~/.local/share/bash-completion/bash_completion ]] && \
+    source ~/.local/share/bash-completion/bash_completion
+
+# This repo, found from this file rather than baked in at install time.
+export DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+source "$DOTFILES/shell/dynamic_source_all"

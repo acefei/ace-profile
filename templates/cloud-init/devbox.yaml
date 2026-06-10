@@ -1,0 +1,30 @@
+# run the following cmd on macOS
+# multipass launch --name ace-dtbox --cpus 2 --memory 8G --disk 96G --network bridge=bridge0 --cloud-init https://raw.githubusercontent.com/acefei/ace-profile/refs/heads/main/templates/cloud-init/devbox.yaml
+package_update: true
+package_upgrade: true
+
+packages:
+  - curl
+  - python3-pip
+
+ssh_authorized_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDBI418gou9LpCEpafwW8p+xdvyXSFmh7siEG9goJOpJinje2rNksmHbOqaYiX53ZkryHfDyjjPpASB7yKo8FkRU64c+R8B+AyPDHE/DjyqHQBQqZ8GJi4rOAfJQvBftAjSVD1DLkLl0FWH7up/FpVcuKekixJzVfN+wrPVcQiDbLyITbqRO/JW5EmPNJDw/dOEhPSSwAsL+zfILWrYOJ8v2BWqnRiZ56obUqjbf3o2Q4eInbJjLnUZpOU9C2Xwtytfums2PbkwcTxgbmh/kM8RvkCCR0tCFNdkT9KAoHOuLbVxRcNoQ7L82mDU6JTquehNoMSGw+550Cd1EBnfMCIz generic-dtbox
+
+# create the docker group
+groups:
+    - docker
+   
+# add the default user 
+users:
+    - default
+    - name: acefei
+    - sudo: ALL=(ALL) NOPASSWD:ALL
+    - groups: sudo, docker
+
+# run updates and install docker
+runcmd:
+    - 'curl -fsSL https://get.docker.com -o get-docker.sh'
+    - 'sudo sh get-docker.sh'
+
+    
+final_message: "The system is finally up, after $UPTIME seconds"

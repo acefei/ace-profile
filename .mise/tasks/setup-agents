@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+#MISE description="Configure Claude Code and VSCode (settings, marketplaces, plugins, skills)"
+source "$MISE_PROJECT_ROOT/lib/utils.sh"
+
+setup_vscode() {
+    if ! command -v code &>/dev/null; then
+        echo "VSCode not installed, skipping"
+        return 0
+    fi
+
+    local vscode_dir
+    if is_mac; then
+        vscode_dir="$HOME/Library/Application Support/Code/User"
+    else
+        vscode_dir="$HOME/.config/Code/User"
+    fi
+
+    install -d "$vscode_dir"
+
+    # VSCode rewrites both of these from its own UI, so they are seeded once and
+    # then left alone. Copying them on every run destroyed whatever you had
+    # changed in the editor since the last setup.
+    local f
+    for f in settings.json keybindings.json; do
+        copy_once "$MISE_PROJECT_ROOT/agents/vscode/$f" "$vscode_dir/$f"
+    done
+
+    while IFS= read -r ext; do
+        [[ "$ext" =~ ^#|^$ ]] && continue
+        code --install-extension "$ext" --force
+    done < "$MISE_PROJECT_ROOT/agents/vscode/extensions.txt"
+}
+
+# Claude Code plugin marketplaces to register.
+#   format: "<marketplace-source>"  (GitHub owner/repo, git URL, or local path)
+# Every marketplace must be listed, including Anthropic's own — none are
+# registered by default.
+CLAUDE_MARKETPLACES=(
+    "affaan-m/ECC"                        # "everything claude code"
+    "acefei/agent-accelerator"
+    "anthropics/claude-plugins-official"  # Claude Code's official marketplace
+)
+
+# Claude Code plugins to install.
+#   format: "<plugin>@<marketplace-name>"
+CLAUDE_PLUGINS=(
+    "ecc@ecc"
+    "accelerator-core@agent-accelerator"
+    "accelerator-loops@agent-accelerator"
+    "mattpocock-skills@claude-plugins-official"
+)
+
+# Skill packs installed via `gh skill` (preview) rather than as plugins.
+# A pack available both ways belongs in one list or the other, never both —
+# installing twice gives you every skill twice. One doc per plugin under docs/.
+#   format: "<source>"  (GitHub owner/repo or git URL)
+CLAUDE_SKILLS=(
+    "cli/cli"             # https://github.com/cli/cli/tree/trunk/skills (gh, gh-skill)
+)
+
+setup_claude() {
+    # Run it, don't just look for it — a shim can exist with no working binary.
+    if ! claude --version &>/dev/null; then
+        echo "Claude Code CLI not available or not runnable, skipping Claude setup"
+        return 0
+    fi
+
+    local claude_dir="$HOME/.claude"
+    install -d "$claude_dir"
+
+    # Claude Code writes this file itself, so seed it and leave it alone.
+    copy_once "$MISE_PROJECT_ROOT/agents/claude/settings.json" "$claude_dir/settings.json"
+
+    # Global CLAUDE.md (personal always-on instructions). A machine with nothing
+    # there gets a symlink, so repo edits propagate. A machine that already has a
+    # real CLAUDE.md keeps it — but merely keeping it left the repo silently
+    # disconnected, so import the repo file from it instead. Claude Code expands
+    # @path imports (four hops deep), and imports in user-scope files load
+    # without the external-import prompt.
+    local claude_md="$claude_dir/CLAUDE.md"
+    local repo_claude_md="$MISE_PROJECT_ROOT/agents/claude/CLAUDE.md"
+    if [[ -e "$claude_md" && ! -L "$claude_md" ]]; then
+        if grep -qF "@$repo_claude_md" "$claude_md"; then
+            echo "Claude CLAUDE.md already imports the repo file"
+        else
+            printf '\n@%s\n' "$repo_claude_md" >> "$claude_md"
+            echo "Imported the repo CLAUDE.md from your existing $claude_md"
+        fi
+    else
+        link_config "$repo_claude_md" "$claude_md"
+    fi
+
+    local marketplace plugin marketplace_name
+
+    for marketplace in "${CLAUDE_MARKETPLACES[@]}"; do
+        echo "Registering Claude plugin marketplace: $marketplace"
+        # Adding an already-registered marketplace errors; fall back to update.
+        # Its name is the last path segment, lowercased. Use tr — macOS bash 3.2
+        # has no ${x,,}.
+        marketplace_name=$(printf '%s' "${marketplace##*/}" | tr '[:upper:]' '[:lower:]')
+        claude plugin marketplace add "$marketplace" \
+            || claude plugin marketplace update "$marketplace_name" \
+            || true
+    done
+
+    for plugin in "${CLAUDE_PLUGINS[@]}"; do
+        echo "Installing Claude plugin: $plugin"
+        claude plugin install "$plugin" \
+            || echo "Plugin install failed for $plugin, continuing"
+    done
+
+    if [[ ${#CLAUDE_SKILLS[@]} -gt 0 ]] && command -v gh &>/dev/null; then
+        # `gh skill` is a preview command; `--all` needs a recent gh, and mise
+        # won't re-resolve an already-installed "latest".
+        mise upgrade gh &>/dev/null || true
+
+        local skill_source
+        for skill_source in "${CLAUDE_SKILLS[@]}"; do
+            echo "Installing Claude skill pack: $skill_source"
+            gh skill install "$skill_source" --all --agent claude-code --scope user --force \
+                || echo "Skill install failed for $skill_source, continuing"
+        done
+    fi
+}
+
+setup_vscode
+setup_claude

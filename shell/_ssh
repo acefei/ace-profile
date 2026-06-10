@@ -1,0 +1,13 @@
+# shell/_ssh — complete ssh hosts from ~/.ssh/config ONLY (ignore known_hosts,
+# /etc/hosts, etc). Overrides bash-completion's default ssh host completion.
+_ssh_config_only() {
+    local cur=${COMP_WORDS[COMP_CWORD]} pfx=''
+    case "$cur" in
+        -*)   COMPREPLY=(); return ;;          # let options fall through (no host list)
+        *@*)  pfx="${cur%@*}@"; cur="${cur#*@}" ;;
+    esac
+    local hosts
+    hosts=$(awk 'tolower($1)=="host"{for(i=2;i<=NF;i++) if($i !~ /[*?!]/) print $i}' ~/.ssh/config 2>/dev/null)
+    COMPREPLY=( $(compgen -P "$pfx" -W "$hosts" -- "$cur") )
+}
+complete -F _ssh_config_only ssh slogin

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#MISE description="Install bash 5+ and source this repo's shell profile"
+source "$MISE_PROJECT_ROOT/lib/utils.sh"
+
+if [[ ! -x ~/.local/bin/bash || $(~/.local/bin/bash -c 'echo ${BASH_VERSINFO[0]}') -lt 5 ]]; then
+    BASH_VER=$(curl -fsSL https://ftp.gnu.org/gnu/bash/ \
+        | grep -Eo 'bash-[0-9]+\.[0-9]+\.[0-9]+\.tar\.gz' \
+        | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' \
+        | sort -V | tail -1)
+    echo "Installing bash ${BASH_VER} for better completion support..."
+    work_in_temp_dir
+    run_quiet sh -c "curl -fsSL https://ftp.gnu.org/gnu/bash/bash-${BASH_VER}.tar.gz | tar -xz"
+    cd "bash-${BASH_VER}"
+    run_quiet ./configure --prefix="$HOME/.local"
+    run_quiet make
+    run_quiet make install
+fi
+
+# One line into each, so anything else you keep there survives. Login shells
+# read .bash_profile, other interactive shells read .bashrc.
+for rc in "$HOME/.bash_profile" "$HOME/.bashrc"; do
+    ensure_line "source $MISE_PROJECT_ROOT/shell/profile" "$rc"
+done
+
+echo "Shell configured. Re-login or: source ~/.bash_profile"

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#MISE description="Symlink utility scripts into ~/.local/bin"
+set -euo pipefail
+source "$MISE_PROJECT_ROOT/lib/utils.sh"
+
+install -d "$HOME/.local/bin"
+
+# Link rather than copy: a script fixed in the repo is fixed on the PATH at
+# once, with no setup re-run and no wondering which copy is stale. The exec bit
+# comes from the repo file, which is tracked as mode 755.
+for cmd in "$MISE_PROJECT_ROOT"/utility/*; do
+    [[ -e "$cmd" ]] || continue
+    link_config "$cmd" "$HOME/.local/bin/$(basename "$cmd")"
+done

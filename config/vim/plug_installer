@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+source "$(dirname "$0")/../../lib/utils.sh"
+
+skip_task() {
+  echo "Skipping vim plugin install: $1" >&2
+  exit 0
+}
+
+if ! command -v vim >/dev/null 2>&1; then
+  skip_task "vim is not installed"
+fi
+
+vim_version=$(vim --version | head -1 | grep -Eo '[0-9]+\.[0-9]+' | head -1)
+if [[ -z "$vim_version" ]] || [[ "$(printf '%s\n' "$vim_version" "8.2" | sort -V | head -1)" == "$vim_version" ]]; then
+  skip_task "vim > 8.2 is required (found: ${vim_version:-unknown})"
+fi
+
+PLUGS="\
+     Yggdroot/LeaderF \
+     jiangmiao/auto-pairs \
+     scrooloose/nerdcommenter \
+     "
+#==================== End Plugin List =========================
+
+
+# Create new folder in ~/.vim/pack that contains a start folder and cd into it.
+#
+# Arguments:
+#   package_group, a string folder name to create and change into.
+#
+set_group() {
+  local package_group=$1
+  local path="$HOME/.vim/pack/$package_group/start"
+  mkdir -p "$path"
+  cd "$path" || exit
+}
+
+# Clone or update a git repo in the current directory.
+# Uses git -C to avoid changing the caller's working directory.
+#
+# Arguments:
+#   repo_url, a URL to the git repo.
+#
+package() {
+  local repo_url=$1
+  local expected_repo
+  expected_repo=$(basename "$repo_url" .git)
+  if [ -d "$expected_repo" ]; then
+    result=$(git -C "$expected_repo" pull --force 2>&1)
+    echo "vim-plugin $expected_repo: $result"
+  else
+    git clone -q "$repo_url" --depth 1
+    echo "vim-plugin $expected_repo: Done..."
+  fi
+}
+
+install_group() {
+    local group_name=$1
+    local plugins=$2
+    local pack_dir="$HOME/.vim/pack/$group_name/start"
+
+    set_group "$group_name"
+
+    # Install/update listed plugins in parallel; track expected names
+    local expected=()
+    for plug in $plugins; do
+        expected+=("$(basename "$plug")")
+        package "https://github.com/${plug}.git" &
+    done
+    wait
+
+    # Remove any plugin directories no longer in the list
+    for dir in "$pack_dir"/*/; do
+        [[ -d "$dir" ]] || continue
+        local name
+        name=$(basename "$dir")
+        if [[ ! " ${expected[*]} " =~ " $name " ]]; then
+            echo "Removing old plugin: $name"
+            rm -rf "$dir"
+        fi
+    done
+}
+
+install_group "plugins" "$PLUGS"

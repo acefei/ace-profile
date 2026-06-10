@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#MISE description="Point ~/.tmux.conf at this repo's tmux config, install tpm plugins"
+set -euo pipefail
+source "$MISE_PROJECT_ROOT/lib/utils.sh"
+
+# tmux never writes this file, so link it: edit config/tmux/tmux.conf and the
+# change is live on every machine at the next `tmux source-file ~/.tmux.conf`.
+link_config "$MISE_PROJECT_ROOT/config/tmux/tmux.conf" "$HOME/.tmux.conf"
+
+"$MISE_PROJECT_ROOT/config/tmux/tpm_installer"

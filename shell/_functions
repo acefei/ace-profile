@@ -1,0 +1,221 @@
+#-------------------------------------------------------------
+# File & strings related functions:
+#-------------------------------------------------------------
+_backup_file() {
+    cp $1{,.`date +%Y%m%d`}
+}
+alias bk=_backup_file
+
+_move_to_backup() {
+    local backup_path=$HOME/backup
+    mkdir -p $backup_path
+    mv $* $backup_path
+}
+alias mtb=_move_to_backup
+
+# Find a file with a pattern in name:
+ff() { find . -type f -iname '*'"$*"'*' -ls ; }
+
+_find_string()
+{
+    local file_pattern=$2
+    if [ -z "$file_pattern" ];then
+        grep -nr "${1:?Usage: $FUNCNAME <keyword> [file_pattern]}"
+    else
+        grep -nr "${1:?Usage: $FUNCNAME <keyword> [file_pattern]}" | grep "$file_pattern"
+    fi
+}
+alias fs=_find_string
+
+extract()      # Handy Extract Program
+{
+    if [ -f $1 ] ; then
+        case $1 in
+            *.tar.bz2)   tar xvjf $1     ;;
+            *.tar.gz)    tar xvzf $1     ;;
+            *.bz2)       bunzip2 $1      ;;
+            *.rar)       unrar x $1      ;;
+            *.gz)        gunzip $1       ;;
+            *.tar)       tar xvf $1      ;;
+            *.tbz2)      tar xvjf $1     ;;
+            *.tgz)       tar xvzf $1     ;;
+            *.zip)       unzip $1        ;;
+            *.Z)         uncompress $1   ;;
+            *.7z)        7z x $1         ;;
+            *)           echo "'$1' cannot be extracted via >extract<" ;;
+        esac
+    else
+        echo "'$1' is not a valid file!"
+    fi
+}
+
+# Creates an archive (*.tar.gz) from given directory.
+_make_tar_gz() { tar cvzf "${1%%/}.tar.gz"  "${1%%/}/"; }
+alias mtz=_make_tar_gz
+
+# Create a ZIP archive of a file or folder.
+_make_zip() { zip -r "${1%%/}.zip" "$1" ; }
+alias mz=_make_zip
+
+
+myip() # Get IP adress on ethernet.
+{
+    ip a s $(ip r | sed -n '/^default/s/.*\(dev [^ ]*\).*/\1/p') | sed -n '/inet/s/.*inet \([^\/]*\).*/\1/p'
+}
+
+ii()   # Get current host related info.
+{
+    echo -e "\nYou are logged on ${BRed}$HOST"
+    echo -e "\n${BRed}Additionnal information:$NC " ; uname -a
+    echo -e "\n${BRed}Users logged on:$NC " ; w -hs |
+             cut -d " " -f1 | sort | uniq
+    echo -e "\n${BRed}Current date :$NC " ; date
+    echo -e "\n${BRed}Machine stats :$NC " ; uptime
+    echo -e "\n${BRed}Memory stats :$NC " ; free
+    echo -e "\n${BRed}Diskspace :$NC " ; mydf / $HOME
+    echo -e "\n${BRed}Local IP Address :$NC" ; my_ip
+    echo -e "\n${BRed}Open connections :$NC "; netstat -pan --inet;
+    echo
+}
+
+#-------------------------------------------------------------
+# Misc utilities:
+#-------------------------------------------------------------
+
+repeat()  # Repeat n times command.
+{
+    local i max
+    max=$1; shift;
+    for ((i=1; i <= max ; i++)); do  # --> C-like syntax
+        eval "$@";
+    done
+}
+
+ask()  # See 'killps' for example of use.
+{
+    echo -n "$@" '[y/n] ' ; read ans
+    case "$ans" in
+        y*|Y*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# Print one of this repo's docs. Used by the *-help aliases.
+_dotfiles_doc()
+{
+    local doc="$DOTFILES/docs/$1"
+    if [ -f "$doc" ]; then
+        cat "$doc"
+    else
+        echo "Doc not found: $doc"
+    fi
+}
+
+alias git-help='_dotfiles_doc git-alias.md'
+
+_add_ssh_agent()
+{
+    eval "$(ssh-agent)"
+    ssh-add
+}
+alias asa=_add_ssh_agent
+
+cdmk()
+{
+    mkdir -p $1 && cd $1
+}
+
+branch_create_time()
+{
+    local branch=${1:?Usage: $FUNCNAME <branch>}
+    git reflog show --date=format:'%Y%m%d' $branch | sed -n "/Created from/s/.*{\([^}]*\)}.*/\1/p"
+}
+
+remove_gone_branch() {
+    # any orphaned tracking branch will be marked "[gone]"
+    local branchs=$(git branch --list --format "%(if:equals=[gone])%(upstream:track)%(then)%(refname:short)%(end)")
+    local branch
+    for branch in $branchs; do
+        [ -n "$branch" ] && git branch -D $branch
+    done
+}
+
+my_branchs() {
+	local branchs=$(git for-each-ref --format='%(authorname) %(refname:short)' --sort=committerdate \
+		| grep "^$(git config user.name) origin/" \
+		| sed 's|.* origin/||' \
+		| grep -v '^HEAD$' \
+		| sed 's|^|origin/|')
+
+	updated_in_a_period() {
+        local branch=$1
+        if ! echo $branch | grep -q "^origin";then
+           branch=origin/$branch
+        fi
+		test -n "$(git log -1 --since '4 month ago' $branch)"
+	}
+
+    local branch
+	for branch in $branchs; do
+		if updated_in_a_period $branch;then
+			# echo "SKIP: $branch was updated in a period"
+			continue
+		fi
+		echo $branch
+	done
+}
+
+_prune_git_tags() (
+    local tags tag
+    tags=$1
+
+    ECHO=''
+    for tag in $tags; do
+        {
+            $ECHO git tag -d ${tag} ||:
+            $ECHO git push origin --delete ${tag} ||:
+            echo "---> Success to delete ${tag}"
+        }&
+    done
+    wait
+)
+alias pgt=_prune_git_tags
+
+_prune_git_branchs() (
+    local branchs branch
+
+    branchs=$1
+    if [ "$branchs" = "$(git branch --show-current)" ];then
+        echo "Can't remove $branchs in the same branch"
+        exit 1
+    fi
+
+    set -e
+    git checkout $(git remote show origin | grep "HEAD branch:" | sed 's/.*HEAD branch: //')
+
+    if [ -z "${branchs}" ] ;then
+        git fetch -p && remove_gone_branch
+        branchs=$(my_branchs)
+    fi
+
+    ECHO=''
+    for branch in $branchs; do
+        {
+            $ECHO git branch -D ${branch} ||:
+            $ECHO git push origin --delete ${branch} ||:
+            echo "---> Success to delete ${branch}"
+        }&
+    done
+    wait
+)
+alias pgb=_prune_git_branchs
+
+_prune_docker_image() {
+    # clean none images
+    docker ps -a | grep "Exited" | awk '{print $1}' | xargs docker stop
+    docker ps -a | grep "Exited" | awk '{print $1}' | xargs docker rm
+    docker images| grep none | awk '{print $3 }' | xargs docker rmi
+    # clean unused images
+    docker image prune -a
+}
+alias pdi=_prune_docker_image

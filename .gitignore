@@ -1,0 +1,8 @@
+.*.swp
+.install.err
+test.env
+
+# Keep CI workflows trackable even if global gitignore ignores .github/
+!.github/
+!.github/workflows/
+!.github/workflows/*.yml

@@ -1,0 +1,31 @@
+# Tools and environment, available everywhere.
+#
+# install.sh symlinks this file to ~/.config/mise/config.toml, so these tools are
+# on your PATH in any directory — not just inside this repo.
+#
+# Add a tool here, then run `mise install`.
+
+[tools]
+# Built-in tools — full list: https://mise.jdx.dev/registry.html  (or: mise registry)
+fzf       = "latest"
+gh        = "latest"
+go        = "latest"
+jq        = "latest"  # JSON processor; used by the speak-aloud plugin's Stop hook
+node      = "lts"
+ripgrep   = "latest"
+rust      = "stable"
+terraform = "latest"
+usage     = "latest"  # required for mise completions
+uv        = "latest"
+
+# github: — any GitHub repo publishing release binaries; mise picks the right
+# asset for your OS/arch. https://mise.jdx.dev/dev-tools/backends/github.html
+"github:extrawurst/gitui" = "latest"
+
+# npm: — global npm packages (requires node above).
+# https://mise.jdx.dev/dev-tools/backends/npm.html
+"npm:@anthropic-ai/claude-code" = "latest"
+
+[env]
+PATH   = "{{env.HOME}}/.local/bin:{{env.PATH}}"
+EDITOR = "vi"

@@ -1,0 +1,19 @@
+# Setup tasks for this repo.
+#
+#   mise run bootstrap      # everything
+#   mise run setup-git      # just one
+#   mise tasks              # list them
+#
+# Each task is a script in .mise/tasks/. Tools live in config/mise/tools.toml.
+
+[tasks.bootstrap]
+description = "Set up complete development environment"
+depends     = [
+    "setup-bash",
+    "setup-completions",
+    "setup-git",
+    "setup-tmux",
+    "setup-vim",
+    "setup-utility",
+    "setup-agents",
+]

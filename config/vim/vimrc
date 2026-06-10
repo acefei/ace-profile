@@ -1,0 +1,118 @@
+" Vim Settings {
+    " With a map leader it's possible to do extra key combinations
+    let mapleader = ","
+    let g:mapleader = ","
+
+    " UI {
+        " allow plugins by file type (required for plugins!)
+        filetype plugin on
+        filetype indent on
+
+        " syntax highlight on
+        syntax on
+        colorscheme desert
+
+        " Fix vim takes a very long time to start up. https://stackoverflow.com/a/17719528
+        set clipboard=exclude:.*
+
+        set nocompatible                " no vi-compatible
+        set linespace=0                 " No extra spaces between rows
+        set number                      " Line numbers on
+        set showmatch                   " Show matching brackets/parenthesis
+        set incsearch                   " Find as you type search
+        set hlsearch                    " Highlight search terms
+        set winminheight=0              " Windows can be 0 line high
+        set ignorecase                  " Case insensitive search
+        set smartcase                   " Case sensitive when uc present
+        set wildmenu                    " Show list instead of just completing
+    " }
+
+    " Formatting {
+        set smartindent                 " Indent at the same level of the previous line
+        set tabstop=4                   " An indentation every four columns
+        set shiftwidth=4                " Use indents of 4 spaces
+        set expandtab                   " Tabs are spaces, not tabs
+        set softtabstop=4               " Let backspace delete indent
+        set nojoinspaces                " Prevents inserting two spaces after punctuation on a join (J)
+        set splitright                  " Puts new vsplit windows to the right of the current
+        set splitbelow                  " Puts new split windows to the bottom of the current
+        set pastetoggle=<F4>           " pastetoggle (sane indentation on pastes)
+    " }
+
+    " Tab {
+        " Useful mappings for managing tabs
+        map <leader>tn :tabnew<cr>
+        map <leader>to :tabonly<cr>
+        map <leader>tc :tabclose<cr>
+        map <leader>tm :tabmove
+
+        " Opens a new tab with the current buffer's path
+        " Super useful when editing files in the same directory
+        map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
+    " }
+
+    " VIMDIFF {
+	if &diff
+		map gs :call IwhiteToggle()<CR>
+		function! IwhiteToggle()
+			if &diffopt =~ 'iwhite'
+				set diffopt-=iwhite
+			else
+				set diffopt+=iwhite
+			endif
+		endfunction
+	endif
+    " }
+
+    " Key Mappings {
+        " Re-bind ctrl+q for block-edit
+        nnoremap <c-q> <c-v>
+
+        " Wrapped lines goes down/up to next row, rather than next line in file.
+        noremap j gj
+        noremap k gk
+
+        " Allow saving of files as sudo when I forgot to start vim using sudo."
+        cmap w!! w !sudo tee > /dev/null %
+    " }
+
+    " Misc {
+        " Return to last edit position when opening files (You want this!)
+        autocmd BufReadPost *
+             \ if line("'\"") > 0 && line("'\"") <= line("$") |
+             \   exe "normal! g`\"" |
+             \ endif
+        " Remember info about open buffers on close
+        set viminfo^=%
+
+        " Fix compatibility issues between vim and Windows Terminal related to cursor position
+        if &term =~ "xterm"
+            let &t_SI = "\<Esc>[6 q"
+            let &t_SR = "\<Esc>[3 q"
+            let &t_EI = "\<Esc>[2 q"
+        endif
+    " }
+" }
+
+" Plugin Settings {
+    " AutoPairs{
+        let g:AutoPairsShortcutFastWrap = '<C-e>'
+    " }
+
+    " Nerdcommenter {
+        " Ctrl + / to to toggle comments like in vscode
+        map <C-_> <plug>NERDCommenterToggle
+    " }
+
+    " LeaderF {
+        " rg search
+        nnoremap <leader>rg :Leaderf rg<CR>
+        " search word under cursor
+		nnoremap gf :<C-U><C-R>=printf("Leaderf! rg -e %s ", expand("<cword>"))<CR>
+        " search visually selected text literally
+        xnoremap gf :<C-U><C-R>=printf("Leaderf! rg -F -e %s ", leaderf#Rg#visual())<CR>
+        " recall last search. If the result window is closed, reopen it.
+        noremap go :<C-U>Leaderf! rg --recall<CR>
+    " }
+    
+" }

@@ -1,0 +1,2 @@
+# Add VSCode extension IDs here, one per line
+# Example: ms-python.python

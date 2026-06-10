@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+#MISE description="Point ~/.gitconfig at this repo's git config"
+set -euo pipefail
+source "$MISE_PROJECT_ROOT/lib/utils.sh"
+
+# Only ever hand-edited, so link it.
+link_config "$MISE_PROJECT_ROOT/config/git/gitignore_global" "$HOME/.gitignore_global"
+
+# ~/.gitconfig has two authors: you, and `git config --global`. That rules out
+# both of the usual options. A copy loses every edit on the next setup run. A
+# symlink is worse than it looks: git resolves the symlink before locking and
+# writes THROUGH it, so one `git config --global user.email ...` would land a
+# machine-local value inside this repo and leave the tree dirty.
+#
+# So include the repo file from the local one, and append rather than replace:
+# whatever you already keep in ~/.gitconfig survives. Git applies values in the
+# order it reads them, so anything written below the include wins, and
+# `git config --global` keeps working exactly as it does today.
+repo_gitconfig="$MISE_PROJECT_ROOT/config/git/gitconfig"
+
+# Ask git, not the file: it resolves the include however it is spelled or
+# nested. Appending a bare `path =` blind would land under whatever section
+# happens to be last.
+if git config --file "$HOME/.gitconfig" --get-all include.path 2>/dev/null \
+    | grep -qxF "$repo_gitconfig"; then
+    echo "~/.gitconfig already includes $repo_gitconfig"
+else
+    printf '\n[include]\n\tpath = %s\n' "$repo_gitconfig" >> "$HOME/.gitconfig"
+    echo "Added include of $repo_gitconfig to ~/.gitconfig"
+fi

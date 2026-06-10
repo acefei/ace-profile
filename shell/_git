@@ -1,0 +1,7 @@
+# Source every ~/.git-* helper (e.g. .git-prompt.sh), never the credential store.
+for rc in ~/.git-*; do
+    case "$rc" in
+        *.git-credentials) continue ;;
+    esac
+    [ -r "$rc" ] && source "$rc"
+done

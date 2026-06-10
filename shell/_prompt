@@ -1,0 +1,78 @@
+# About the below environment usage, please refer to ~/.git-prompt.sh
+export GIT_PS1_SHOWDIRTYSTATE=true
+export GIT_PS1_SHOWUPSTREAM=true
+export GIT_PS1_SHOWSTASHSTATE=true
+export GIT_PS1_SHOWUNTRACKEDFILES=true
+#export GIT_PS1_SHOWCOLORHINTS=true
+
+# Return the primary IPv4 address in a way that works across
+# macOS, Ubuntu/Debian and RedHat/CentOS based systems.
+__host_ip()
+{
+    local ip=""
+
+    if command -v ip >/dev/null 2>&1; then
+        # Linux (iproute2): pick the source IP used for the default route
+        ip=$(ip route get 1.1.1.1 2>/dev/null | awk '{for (i=1;i<=NF;i++) if ($i=="src") {print $(i+1); exit}}')
+        [ -z "$ip" ] && ip=$(ip -4 addr show scope global 2>/dev/null | awk '/inet /{print $2; exit}' | cut -d/ -f1)
+    fi
+
+    if [ -z "$ip" ] && command -v route >/dev/null 2>&1 && command -v ifconfig >/dev/null 2>&1; then
+        # macOS / BSD fallback
+        local iface
+        iface=$(route -n get default 2>/dev/null | awk '/interface:/{print $2; exit}')
+        [ -n "$iface" ] && ip=$(ifconfig "$iface" 2>/dev/null | awk '/inet /{print $2; exit}')
+        [ -z "$ip" ] && ip=$(ifconfig 2>/dev/null | awk '/inet /{if ($2 != "127.0.0.1") {print $2; exit}}')
+    fi
+
+    if [ -z "$ip" ] && command -v hostname >/dev/null 2>&1; then
+        ip=$(hostname -I 2>/dev/null | awk '{print $1}')
+    fi
+
+    [ -z "$ip" ] && ip=$(hostname 2>/dev/null)
+    printf '%s' "$ip"
+}
+
+# Compute colors ONCE at startup using terminfo (tput), so the prompt is
+# correct per-terminal and we avoid forking on every render.
+#   - tput reads $TERM, falling back gracefully when unset/dumb
+#   - classic 8/16-color ANSI palette (safe on every terminal)
+#   - all wrapped in \[ \] so bash counts prompt width correctly
+__prompt_init_colors()
+{
+    PC_RESET="\[$(tput sgr0 2>/dev/null)\]"
+    PC_USER="\[$(tput setaf 5 2>/dev/null)\]"    # magenta - user@host
+    PC_HOST="\[$(tput setaf 5 2>/dev/null)\]"    # magenta - host ip
+    PC_DIM="\[$(tput setaf 5 2>/dev/null)\]"     # magenta - separator
+    PC_GIT="\[$(tput setaf 6 2>/dev/null)\]"     # cyan    - git branch
+    PC_PATH="\[$(tput setaf 7 2>/dev/null)\]"    # white   - path
+    PC_PROMPT="\[$(tput sgr0 2>/dev/null)\]"     # default - prompt sym
+    PC_OK="\[$(tput setaf 2 2>/dev/null)\]"      # green   - exit 0
+    PC_ERR="\[$(tput setaf 1 2>/dev/null)\]"     # red     - exit !=0
+}
+__prompt_init_colors
+
+# Cache the host IP once per shell; it rarely changes within a session and
+# resolving it (ip route / ifconfig) is too costly to run on every prompt.
+PROMPT_HOST_IP=$(__host_ip)
+
+# Rebuild PS1 on every prompt via PROMPT_COMMAND: $? is captured directly,
+# git state stays fresh, and there are no embedded subshells in PS1 itself.
+__set_ps1()
+{
+    local last=$?
+    local status_col=$PC_OK
+    [ "$last" -ne 0 ] && status_col=$PC_ERR
+
+    PS1="\n${status_col}<${last}> "
+    PS1+="${PC_USER}\u${PC_DIM}@${PC_HOST}${PROMPT_HOST_IP}"
+    PS1+="${PC_GIT}$(__git_ps1 ' (%s)' 2>/dev/null)"
+    PS1+=" ${PC_PATH}[\w]"
+    PS1+="\n${PC_PROMPT}\$ ${PC_RESET}"
+}
+
+# Preserve any existing PROMPT_COMMAND, then prepend ours (run once).
+case ";${PROMPT_COMMAND};" in
+    *";__set_ps1;"*) ;;
+    *) PROMPT_COMMAND="__set_ps1${PROMPT_COMMAND:+;$PROMPT_COMMAND}" ;;
+esac

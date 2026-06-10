@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#MISE description="Install bash-completion and git completions"
+source "$MISE_PROJECT_ROOT/lib/utils.sh"
+
+GIT_VERSION=$(git --version | grep -Eo '[0-9]+(\.[0-9]+)+' | head -1)
+
+# ── Install bash-completion ─────────────────────────────────────────────────
+if [[ ! -f ~/.local/share/bash-completion/bash_completion ]]; then
+    REPO="scop/bash-completion"
+    VER=$(curl -sfLI "https://github.com/$REPO/releases/latest" -o /dev/null -w '%{url_effective}' \
+        | grep -Eo '[^/]+$')
+    VER_NUM=${VER#v}
+
+    work_in_temp_dir
+
+    echo "Installing bash-completion..."
+    run_quiet sh -c "curl -fsSL 'https://github.com/$REPO/releases/download/$VER/bash-completion-$VER_NUM.tar.xz' | tar -xJ"
+    cd "bash-completion-$VER_NUM"
+
+    run_quiet ./configure --prefix="$HOME/.local"
+    run_quiet make
+    run_quiet make install
+else
+    echo "bash-completion already installed, skipping"
+fi
+
+# ── Generate completions for installed tools ────────────────────────────────
+mkdir -p ~/.local/share/bash-completion/completions
+download "https://raw.githubusercontent.com/git/git/v${GIT_VERSION}/contrib/completion/git-completion.bash" \
+    ~/.local/share/bash-completion/completions/git
+# Download git-prompt for bash PS1
+download "https://raw.githubusercontent.com/git/git/v${GIT_VERSION}/contrib/completion/git-prompt.sh" ~/.git-prompt.sh
+
+fzf --bash            > ~/.local/share/bash-completion/completions/fzf
+mise completion bash  > ~/.local/share/bash-completion/completions/mise
+gh completion -s bash > ~/.local/share/bash-completion/completions/gh

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Install tmux plugin manager (tpm) and the plugins declared in tmux.conf.
+set -eu
+
+skip_task() {
+  echo "Skipping tmux plugin install: $1" >&2
+  exit 0
+}
+
+command -v tmux >/dev/null 2>&1 || skip_task "tmux is not installed"
+command -v git  >/dev/null 2>&1 || skip_task "git is not installed"
+
+TPM_DIR="$HOME/.tmux/plugins/tpm"
+
+if [ -d "$TPM_DIR/.git" ]; then
+  git -C "$TPM_DIR" pull --ff-only --quiet || true
+else
+  mkdir -p "$(dirname "$TPM_DIR")"
+  git clone --depth=1 --quiet https://github.com/tmux-plugins/tpm "$TPM_DIR"
+fi
+
+# Install/update plugins declared in ~/.tmux.conf without needing a running server.
+"$TPM_DIR/bin/install_plugins" >/dev/null 2>&1 || true
+"$TPM_DIR/bin/update_plugins" all >/dev/null 2>&1 || true
+
+echo "tmux plugins installed under ~/.tmux/plugins"

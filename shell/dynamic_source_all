@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+_SHELL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+for _f in "$_SHELL_DIR"/_*; do
+    [[ -f "$_f" ]] && source "$_f"
+done
+unset _SHELL_DIR _f

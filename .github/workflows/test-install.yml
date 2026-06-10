@@ -1,0 +1,84 @@
+name: Installation on Various OS
+
+on:
+  push:
+    paths:
+      - 'install.sh'
+      - 'mise.toml'
+      - '.mise/tasks/**'
+      - 'agents/**'
+      - 'config/**'
+      - 'shell/**'
+      - '.github/workflows/test-install.yml'
+  pull_request:
+    paths:
+      - 'install.sh'
+      - 'mise.toml'
+      - '.mise/tasks/**'
+      - 'agents/**'
+      - 'config/**'
+      - 'shell/**'
+      - '.github/workflows/test-install.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  install:
+    name: install on ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.container_image }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: ubuntu-22.04, container_image: "ubuntu:22.04", family: debian }
+          - { name: ubuntu-24.04, container_image: "ubuntu:24.04", family: debian }
+          - { name: fedora-41,    container_image: "fedora:41",    family: fedora }
+
+    steps:
+      # Everything install.sh needs, plus git/curl for the checkout that follows.
+      - name: Install dependencies
+        run: |
+          if [ "${{ matrix.family }}" = debian ]; then
+              apt-get update
+              apt-get install -y git curl ca-certificates \
+                  build-essential pkg-config libssl-dev xz-utils
+          else
+              dnf -y install git curl ca-certificates \
+                  gcc make pkgconf-pkg-config openssl-devel xz tar findutils which
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Run install script
+        env:
+          CI: "true"
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          bash ./install.sh
+
+  install-macos:
+    name: install on macos
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Run install script
+        env:
+          CI: "true"
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          bash ./install.sh

@@ -1,0 +1,56 @@
+# shell/_tmux — tmux session helpers
+# Convention: session = tx-<project>, windows = dev|test|infra
+
+# List tx-* sessions (helper)
+_tx_list() {
+    tmux list-sessions -F '#S' 2>/dev/null | grep '^tx-'
+}
+
+# txnew [project] — create a new tx session
+txnew() {
+    local project=${1:-$(basename "$PWD")}
+    local session="tx-${project}"
+
+    if tmux has-session -t "$session" 2>/dev/null; then
+        echo "Session $session already exists. Use txopen to attach."
+        return 1
+    fi
+
+    # Window 1 (dev): 3 panes | Window 2 (test): 2 panes | Window 3 (infra): 1 pane
+    tmux new-session -d -s "$session" -n dev -c "$PWD"
+    tmux split-window -h -t "$session:1.1" -c "$PWD"
+    tmux split-window -v -t "$session:1.2" -c "$PWD"
+
+    tmux new-window -t "$session:2" -n test -c "$PWD"
+    tmux split-window -h -t "$session:2" -c "$PWD"
+
+    tmux new-window -t "$session:3" -n infra -c "$PWD"
+    tmux select-window -t "$session:1"
+    tmux select-pane -t "$session:1.1"
+
+    if [ -n "${TMUX:-}" ]; then
+        tmux switch-client -t "$session"
+    else
+        tmux attach -t "$session"
+    fi
+}
+
+# txopen — fzf-select a tx session to attach
+txopen() {
+    local sel
+    sel=$(_tx_list | fzf --height=40% --reverse --border --prompt='open session> ') || return
+    [ -z "$sel" ] && return
+    if [ -n "${TMUX:-}" ]; then
+        tmux switch-client -t "$sel"
+    else
+        tmux attach -t "$sel"
+    fi
+}
+
+# txclose — fzf-select a tx session to kill
+txclose() {
+    local sel
+    sel=$(_tx_list | fzf --height=40% --reverse --border --prompt='kill session> ') || return
+    [ -z "$sel" ] && return
+    tmux kill-session -t "$sel" && echo "killed $sel"
+}
