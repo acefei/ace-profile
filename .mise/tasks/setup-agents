@@ -62,9 +62,32 @@ CLAUDE_SKILLS=(
     "cli/cli"             # https://github.com/cli/cli/tree/trunk/skills (gh, gh-skill)
 )
 
+# mise's npm backend installs @anthropic-ai/claude-code without running the
+# package's postinstall, so the platform-native binary is never downloaded.
+# `claude` is then on PATH but exits 1 with "claude native binary not
+# installed", and every Claude step below is skipped on a fresh machine.
+# Running the postinstall the error message names repairs it.
+# Returns 0 when claude is runnable afterwards.
+ensure_claude_runnable() {
+    claude --version &>/dev/null && return 0
+    command -v claude &>/dev/null || return 1
+
+    local where postinstall
+    where=$(mise where "npm:@anthropic-ai/claude-code" 2>/dev/null) || return 1
+    postinstall="$where/node_modules/@anthropic-ai/claude-code/install.cjs"
+    [[ -f "$postinstall" ]] || return 1
+
+    echo "Claude Code is installed but not runnable; running its postinstall"
+    node "$postinstall" >/dev/null 2>&1 \
+        || mise exec -- node "$postinstall" >/dev/null 2>&1 \
+        || true
+
+    claude --version &>/dev/null
+}
+
 setup_claude() {
     # Run it, don't just look for it — a shim can exist with no working binary.
-    if ! claude --version &>/dev/null; then
+    if ! ensure_claude_runnable; then
         echo "Claude Code CLI not available or not runnable, skipping Claude setup"
         return 0
     fi
