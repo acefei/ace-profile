@@ -39,15 +39,19 @@ CLAUDE_MARKETPLACES=(
     "affaan-m/ECC"                        # "everything claude code"
     "acefei/agent-accelerator"
     "anthropics/claude-plugins-official"  # Claude Code's official marketplace
+    "AminBlg/SimpleEnglish"               # ASD-STE100 skill + output style
 )
 
 # Claude Code plugins to install.
 #   format: "<plugin>@<marketplace-name>"
+# The marketplace name comes from its marketplace.json, NOT from the repo name.
+# AminBlg/SimpleEnglish declares itself "simple-english".
 CLAUDE_PLUGINS=(
     "ecc@ecc"
     "accelerator-core@agent-accelerator"
     "accelerator-loops@agent-accelerator"
     "mattpocock-skills@claude-plugins-official"
+    "simple-english@simple-english"
 )
 
 # Skill packs installed via `gh skill` (preview) rather than as plugins.

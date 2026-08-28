@@ -4,6 +4,7 @@
 		"ANTHROPIC_MODEL": "claude-opus-4-8[1m]"
 	},
 	"theme": "light",
+	"outputStyle": "simple-english:simple-english",
 	"autoUpdatesChannel": "latest",
 	"skipDangerousModePermissionPrompt": true,
 	"effortLevel": "xhigh",
