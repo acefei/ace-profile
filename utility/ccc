@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+#
+# ccc — run Claude Code with your secrets in its environment, and nowhere else.
+#
+# Replaces the container wrapper. Claude runs natively; the only thing the
+# container was buying here was environment isolation, and `secrets exec` gives
+# that without the image, the mounts, or a copy of the age key inside a box.
+#
+#   ccc                     # normal session
+#   ccc --only GH_TOKEN     # inject just these, not the whole store
+#   ccc -p 'summarise this' # arguments are passed straight through
+set -euo pipefail
+
+SECRETS=${SECRETS_BIN:-secrets}
+CLAUDE=${CLAUDE_BIN:-claude}
+
+command -v "$CLAUDE" >/dev/null 2>&1 || { printf 'ccc: %s is not on PATH\n' "$CLAUDE" >&2; exit 1; }
+
+only=""
+if [[ ${1:-} == --only ]]; then
+    only=${2:?--only needs a comma-separated list of names}
+    shift 2
+fi
+
+# No store, or no key: start Claude anyway. A missing secret should slow you
+# down, not stop you, and the warning says which state you are in.
+if ! command -v "$SECRETS" >/dev/null 2>&1 || ! "$SECRETS" list >/dev/null 2>&1; then
+    printf 'ccc: no readable secrets store — starting claude without secrets\n' >&2
+    exec "$CLAUDE" "$@"
+fi
+
+if [[ -n $only ]]; then
+    # Narrow the blast radius: Claude and everything it spawns sees only these.
+    tmpl=$(mktemp); trap 'rm -f "$tmpl"' EXIT
+    tr ',' '\n' <<< "$only" > "$tmpl"
+    eval "$("$SECRETS" export --file "$tmpl")"
+    exec "$CLAUDE" "$@"
+fi
+
+exec "$SECRETS" exec -- "$CLAUDE" "$@"
