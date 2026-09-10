@@ -7,6 +7,7 @@
 
 [tools]
 # Built-in tools — full list: https://mise.jdx.dev/registry.html  (or: mise registry)
+age       = "latest"
 fzf       = "latest"
 gh        = "latest"
 go        = "latest"
@@ -14,6 +15,7 @@ jq        = "latest"  # JSON processor; used by the speak-aloud plugin's Stop ho
 node      = "lts"
 ripgrep   = "latest"
 rust      = "stable"
+sops      = "latest"
 terraform = "latest"
 usage     = "latest"  # required for mise completions
 uv        = "latest"

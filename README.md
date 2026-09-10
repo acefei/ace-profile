@@ -37,12 +37,26 @@ dotfiles/
 │   └── vscode/             # settings.json, keybindings.json, extensions.txt
 ├── utility/                # Scripts symlinked to ~/.local/bin
 ├── templates/              # Cloud-init and Docker starter files
-├── docs/                   # Reference docs (git aliases, fzf, worktrees, skill workflow)
+├── docs/                   # Reference docs (git aliases, fzf, worktrees, secrets)
 └── .mise/tasks/            # One executable script per setup-* task
 ```
 
 Two mise files, on purpose: `config/mise/tools.toml` is your **global** config
 (tools available in every directory), `mise.toml` holds this repo's **tasks**.
+
+## Secrets
+
+Tokens live in one sops-encrypted JSON file, with age as the key. The store is
+safe to commit; the key is not, and lives outside every repo.
+
+```bash
+secrets init                  # create the key; it makes you confirm the backup
+secrets set GITHUB_TOKEN      # prompts, input hidden
+secrets exec -- claude        # only that process sees the values
+```
+
+`secrets exec` reads the store directly, so nothing is injected into your shell
+just by entering a directory. Full reference: [docs/secrets.md](docs/secrets.md).
 
 ## Philosophy
 
