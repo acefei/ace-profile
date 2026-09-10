@@ -25,11 +25,22 @@ secrets get GITHUB_TOKEN
 secrets search 'token$'
 secrets rm OLD_TOKEN
 
-eval "$(secrets export)"          # load everything into this shell
+secrets exec -- claude            # only that process sees them
+eval "$(secrets export)"          # or load into this shell
 ```
 
 `export` takes `--file` to select names from a template, `--format
 shell|dotenv|json`, and `--on-missing throw|empty|keep`.
+
+## Scope
+
+`secrets exec` reads the store directly through sops. The store is **not**
+declared in any mise config, so nothing is injected into your shell merely by
+entering a directory, and `mise exec` will not see it either. Only the command
+you name gets the values. Add `--pristine` to pass the secrets and nothing else.
+
+If you would rather have them everywhere, declare the store in the global mise
+config instead - at the cost of every process you start being able to read it.
 
 ## Paths
 
